@@ -53,23 +53,23 @@ class ImageEngine @Inject constructor(
         customContext: String?
     ): String {
         val appearance = character.appearance
-        val baseDescription = "A highly realistic 4k photo of a ${character.age} year old man named ${character.name}. " +
-            "He has ${appearance.hairStyle} ${appearance.eyeColor} hair and eyes. " +
-            "His build is ${appearance.build}. " +
-            "Distinguishing features: ${appearance.distinguishingFeatures.joinToString()}. "
+        val baseDescription = "A hyper-realistic, high-quality 8k photo of a ${character.age} year old Caucasian man named ${character.name}. " +
+            "He has a highly attractive, edgy, and masculine face with ${appearance.hairStyle} and ${appearance.eyeColor} eyes. " +
+            "His build is ${appearance.build}, showing defined muscles. " +
+            "Style: Edgy, refined, cinematic. Distinguishing features: ${appearance.distinguishingFeatures.joinToString()}. "
 
         val sceneDescription = when (sceneType) {
-            SceneType.Portrait -> "A professional headshot portrait, neutral background, soft studio lighting."
-            SceneType.Casual -> "Relaxed pose in a modern living room, wearing ${appearance.clothingStyle}, natural daylight."
-            SceneType.Gym -> "At the gym, sweaty, wearing athletic workout gear, lifting weights, intense focus."
-            SceneType.Beach -> "At the beach, shirtless, sunny day, ocean in the background, blue sky."
-            SceneType.Formal -> "Attending a gala, wearing a sharp tailored tuxedo, elegant indoor setting."
-            SceneType.Sleepwear -> "In bed, wearing comfortable pajamas, cozy bedroom atmosphere, dim warm lighting."
-            SceneType.Vacation -> "In a beautiful European city, holding a camera, tourist outfit, historical architecture background."
-            SceneType.Selfie -> "A casual mirror selfie, smartphone visible, relaxed expression, bathroom or bedroom background."
+            SceneType.Portrait -> "A close-up edgy portrait, dramatic shadows, moody studio lighting, intense gaze directly at the camera."
+            SceneType.Casual -> "Relaxed but seductive pose in a luxury urban loft, wearing ${appearance.clothingStyle}, warm afternoon light, highly detailed skin textures."
+            SceneType.Gym -> "Shirtless at a high-end gym, sweat glistening on defined muscles, intense focused expression, atmospheric lighting."
+            SceneType.Beach -> "Shirtless on a secluded beach at sunset, muscular physique, wet skin, golden hour lighting, cinematic ocean background."
+            SceneType.Formal -> "Wearing a perfectly tailored designer suit, sharp jawline, expensive jewelry, elegant nighttime city background."
+            SceneType.Sleepwear -> "Lying in silk sheets, shirtless, intimate atmosphere, dim warm candlelight, suggestive gaze."
+            SceneType.Vacation -> "In a Mediterranean setting, linen shirt unbuttoned, relaxed but dominant posture, high-end travel aesthetic."
+            SceneType.Selfie -> "A raw, intimate mirror selfie, shirtless, smartphone visible, relaxed and seductive expression, bedroom background."
         }
 
-        val style = "Cinematic lighting, hyper-realistic, masterpiece, sharp focus, 8k resolution. "
+        val style = "Cinematic lighting, hyper-realistic, masterpiece, sharp focus, volumetric lighting, 8k resolution, raw photo quality. "
         
         return "$baseDescription $sceneDescription ${customContext ?: ""} $style"
     }

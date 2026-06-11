@@ -1,3 +1,5 @@
+package com.heartforge.app.di
+
 import com.heartforge.app.core.repository.SettingsRepository
 import com.heartforge.app.core.repository.SettingsRepositoryImpl
 import dagger.Binds

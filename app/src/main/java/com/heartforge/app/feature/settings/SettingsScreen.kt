@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     navController: NavController,
@@ -37,7 +37,7 @@ fun SettingsScreen(
             Text("AI Configuration", style = MaterialTheme.typography.titleMedium)
 
             OutlinedTextField(
-                value = state.apiKey,
+                value = state.editingApiKey,
                 onValueChange = { viewModel.updateApiKey(it) },
                 label = { Text("NVIDIA API Key") },
                 modifier = Modifier.fillMaxWidth(),

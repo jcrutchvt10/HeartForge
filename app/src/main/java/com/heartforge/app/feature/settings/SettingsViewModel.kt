@@ -10,6 +10,7 @@ import javax.inject.Inject
 
 data class SettingsState(
     val apiKey: String = "",
+    val editingApiKey: String = "",
     val endpoint: String = "",
     val chatModel: String = "",
     val imageModel: String = "",
@@ -35,23 +36,41 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.chatModel,
                 settingsRepository.imageModel,
                 settingsRepository.temperature,
-                settingsRepository.isStreamingEnabled
-            ) { endpoint, chatModel, imageModel, temp, streaming ->
+                settingsRepository.isStreamingEnabled,
+                settingsRepository.apiKey
+            ) { args ->
+                val endpoint = args[0] as String
+                val chatModel = args[1] as String
+                val imageModel = args[2] as String
+                val temperature = args[3] as Float
+                val isStreamingEnabled = args[4] as Boolean
+                val apiKey = args[5] as String
                 SettingsState(
-                    apiKey = settingsRepository.getApiKey() ?: "",
+                    apiKey = apiKey,
+                    editingApiKey = apiKey,
                     endpoint = endpoint,
                     chatModel = chatModel,
                     imageModel = imageModel,
-                    temperature = temp,
-                    isStreamingEnabled = streaming
+                    temperature = temperature,
+                    isStreamingEnabled = isStreamingEnabled
                 )
-            }.collect {
-                _uiState.value = it
+            }.collect { newState ->
+                _uiState.update { current ->
+                    newState.copy(
+                        editingApiKey = if (current.editingApiKey == current.apiKey) newState.apiKey else current.editingApiKey,
+                        availableModels = current.availableModels,
+                        isRefreshingModels = current.isRefreshingModels
+                    )
+                }
+                if (newState.apiKey.isNotBlank() && _uiState.value.availableModels.isEmpty()) {
+                    refreshModels()
+                }
             }
         }
     }
 
     fun updateApiKey(key: String) {
+        _uiState.update { it.copy(editingApiKey = key) }
         viewModelScope.launch { settingsRepository.saveApiKey(key) }
     }
 

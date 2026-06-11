@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.heartforge.app.core.model.Character
+import com.heartforge.app.ui.theme.RoseRed
+import com.heartforge.app.ui.theme.GlassWhite
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.collectAsState
@@ -146,7 +148,7 @@ fun CharacterProfileScreen(
                     onClick = { navController.navigate(com.heartforge.app.navigation.Destination.Stories.createRoute(character.id)) },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = DeepPurple)
+                    colors = ButtonDefaults.buttonColors(containerColor = RoseRed)
                 ) {
                     Text("Enter Story Mode")
                 }
@@ -188,7 +190,8 @@ private fun FlowRow(
 ) {
     androidx.compose.foundation.layout.FlowRow(
         modifier = modifier,
-        horizontalArrangement = horizontalArrangement,
-        content = content
-    )
+        horizontalArrangement = horizontalArrangement
+    ) {
+        content()
+    }
 }

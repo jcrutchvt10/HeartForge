@@ -2,6 +2,7 @@ package com.heartforge.app.feature.matches
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,9 @@ import coil.compose.AsyncImage
 import com.heartforge.app.core.model.Character
 import com.heartforge.app.ui.components.GlassSurface
 import com.heartforge.app.ui.components.shimmerEffect
+import com.heartforge.app.ui.theme.LuxeGold
+import com.heartforge.app.ui.theme.NeonGoldBorder
+import com.heartforge.app.ui.theme.White
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,16 +124,17 @@ fun MatchCard(
             Surface(
                 modifier = Modifier
                     .padding(20.dp)
-                    .align(Alignment.TopEnd),
+                    .align(Alignment.TopEnd)
+                    .border(1.dp, LuxeGold.copy(alpha = 0.5f), RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
+                color = Color.Black.copy(alpha = 0.8f)
             ) {
                 Text(
                     text = "${profile.compatibilityScore}% Match",
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                     style = MaterialTheme.typography.labelLarge,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    color = LuxeGold,
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
 
@@ -171,7 +176,7 @@ fun MatchCard(
                             label = { Text("✓ $tag", color = Color.White) },
                             shape = CircleShape,
                             colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color.White.copy(alpha = 0.15f)),
-                            border = SuggestionChipDefaults.suggestionChipBorder(borderColor = Color.White.copy(alpha = 0.1f))
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
                         )
                     }
                 }
@@ -246,7 +251,8 @@ private fun FlowRow(
 ) {
     androidx.compose.foundation.layout.FlowRow(
         modifier = modifier,
-        horizontalArrangement = horizontalArrangement,
-        content = content
-    )
+        horizontalArrangement = horizontalArrangement
+    ) {
+        content()
+    }
 }

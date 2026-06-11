@@ -17,16 +17,17 @@ import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = RoseRed,
-    secondary = DeepPurple,
-    tertiary = RoseRedLight,
+    secondary = LuxeGold,
+    tertiary = Silver,
     background = Charcoal,
     surface = Charcoal,
-    onPrimary = White,
-    onSecondary = White,
-    onTertiary = White,
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
+    onTertiary = Charcoal,
     onBackground = White,
     onSurface = White,
-    surfaceVariant = Color(0xFF1E1E1E)
+    surfaceVariant = Color(0xFF2C2C2E), // Lighter variant for cards
+    onSurfaceVariant = Silver
 )
 
 @Composable
@@ -50,17 +51,18 @@ fun HeartForgeTheme(
         typography = Typography,
         shapes = Shapes
     ) {
-        // Subtle background gradient for depth
+        // Subtle background gradient for depth, but maintaining deep black base
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            Color(0xFF1A1A1E),
+                            Color(0xFF0F0F12),
                             Charcoal
                         ),
-                        radius = 2000f
+                        center = androidx.compose.ui.geometry.Offset(500f, 500f),
+                        radius = 3000f
                     )
                 )
         ) {

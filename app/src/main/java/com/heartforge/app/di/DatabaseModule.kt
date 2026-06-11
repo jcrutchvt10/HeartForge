@@ -1,3 +1,5 @@
+package com.heartforge.app.di
+
 import android.content.Context
 import androidx.room.Room
 import com.heartforge.app.core.database.CharacterDao

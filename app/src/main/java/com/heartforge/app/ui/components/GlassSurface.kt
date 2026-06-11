@@ -20,13 +20,14 @@ fun GlassSurface(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(24.dp),
     color: Color = GlassCharcoal,
+    borderColor: Color = GlassBorder,
     borderWidth: Dp = 1.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
     Surface(
         modifier = modifier
             .clip(shape)
-            .border(borderWidth, GlassBorder, shape),
+            .border(borderWidth, borderColor, shape),
         color = color,
         tonalElevation = 8.dp
     ) {

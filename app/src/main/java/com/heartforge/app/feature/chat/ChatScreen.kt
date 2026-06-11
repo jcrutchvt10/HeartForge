@@ -28,7 +28,11 @@ import coil.compose.AsyncImage
 import com.heartforge.app.core.model.ChatMessage
 import com.heartforge.app.core.model.MessageRole
 import com.heartforge.app.ui.components.GlassSurface
+import com.heartforge.app.ui.theme.LuxeGold
 import com.heartforge.app.ui.theme.RoseRed
+import com.heartforge.app.ui.theme.White
+import com.heartforge.app.ui.theme.NeonGoldBorder
+import com.heartforge.app.ui.theme.NeonRoseBorder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,8 +135,7 @@ fun ChatScreen(
 fun ChatBubble(message: ChatMessage) {
     val isUser = message.role == MessageRole.User
     val alignment = if (isUser) Alignment.End else Alignment.Start
-    val containerColor = if (isUser) RoseRed else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-    val contentColor = if (isUser) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+    val borderColor = if (isUser) NeonRoseBorder else NeonGoldBorder
     val shape = if (isUser) {
         RoundedCornerShape(24.dp, 24.dp, 4.dp, 24.dp)
     } else {
@@ -140,11 +143,11 @@ fun ChatBubble(message: ChatMessage) {
     }
 
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = alignment) {
-        Surface(
-            color = containerColor,
-            contentColor = contentColor,
+        GlassSurface(
+            modifier = Modifier.widthIn(max = 300.dp),
             shape = shape,
-            tonalElevation = 4.dp
+            borderColor = borderColor,
+            borderWidth = 1.5.dp
         ) {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                 if (message.imageUrl != null) {
@@ -152,7 +155,7 @@ fun ChatBubble(message: ChatMessage) {
                         model = message.imageUrl,
                         contentDescription = "Shared Image",
                         modifier = Modifier
-                            .fillMaxWidth(0.85f)
+                            .fillMaxWidth()
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(16.dp))
                             .padding(bottom = 8.dp),
@@ -163,6 +166,7 @@ fun ChatBubble(message: ChatMessage) {
                     Text(
                         text = message.content,
                         style = MaterialTheme.typography.bodyLarge,
+                        color = White,
                         lineHeight = 24.sp
                     )
                 }

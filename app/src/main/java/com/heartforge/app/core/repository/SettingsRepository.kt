@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     val endpoint: Flow<String>
     val chatModel: Flow<String>
+    val apiKey: Flow<String>
     val imageModel: Flow<String>
     val temperature: Flow<Float>
     val isStreamingEnabled: Flow<Boolean>

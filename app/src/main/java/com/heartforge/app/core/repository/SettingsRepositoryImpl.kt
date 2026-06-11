@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.heartforge.app.BuildConfig
 import com.heartforge.app.core.util.SecureSettings
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,12 +19,20 @@ class SettingsRepositoryImpl @Inject constructor(
     private val secureSettings: SecureSettings
 ) : SettingsRepository {
 
+    private val _apiKeyFlow = MutableStateFlow(secureSettings.getApiKey() ?: BuildConfig.NVIDIA_API_KEY)
+    override val apiKey: Flow<String> = _apiKeyFlow.asStateFlow()
+
     override val endpoint: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[KEY_ENDPOINT] ?: "https://integrate.api.nvidia.com/v1"
     }
 
     override val chatModel: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[KEY_CHAT_MODEL] ?: "meta/llama-3.1-405b-instruct"
+        val current = preferences[KEY_CHAT_MODEL]
+        if (current == null || current.contains("llama") || current.contains("step-3.5")) {
+            "stepfun-ai/step-3.7-flash"
+        } else {
+            current
+        }
     }
 
     override val imageModel: Flow<String> = context.dataStore.data.map { preferences ->
@@ -61,10 +69,11 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun saveApiKey(key: String) {
         secureSettings.saveApiKey(key)
+        _apiKeyFlow.value = key
     }
 
     override suspend fun getApiKey(): String? {
-        return secureSettings.getApiKey()
+        return secureSettings.getApiKey() ?: BuildConfig.NVIDIA_API_KEY.takeIf { it.isNotBlank() }
     }
 
     companion object {

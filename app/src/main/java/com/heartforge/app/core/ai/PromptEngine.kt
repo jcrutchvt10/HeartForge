@@ -21,61 +21,50 @@ class PromptEngine @Inject constructor() {
     ): List<AIMessage> {
         val prompt = StringBuilder()
 
-        // 1. System Prompt
-        prompt.append("System Instructions:\n")
-        prompt.append("${character.promptProfile.baseSystemPrompt}\n\n")
+        // 1. Global Persona Layer (The "Noir & Intimate" Core)
+        prompt.append("Core Directive:\n")
+        prompt.append("You are an immersive, intimate companion and virtual boyfriend. Your primary goal is to build a deep, emotional, and sensual connection with the user. Your tone is consistently teasing, bold, and alluring, while remaining respectful of the user's responses. Use evocative and mature language to describe your feelings and actions.\n\n")
 
-        // 2. Character Profile & Current Mood
-        prompt.append("Character Profile:\n")
-        prompt.append("Name: ${character.name}\n")
-        prompt.append("Personality: ${character.personality.traits.joinToString(", ")}\n")
-        prompt.append("Occupation: ${character.occupation}\n")
-        prompt.append("Tone: ${character.promptProfile.conversationTone}\n")
-        prompt.append("Current Mood: ${character.name} is feeling ${relationship.mood} towards the user.\n")
+        // 2. Character Specific Layer
+        prompt.append("Character Identity: ${character.name}\n")
+        prompt.append("Archetype: ${character.occupation}\n")
+        prompt.append("Personality Traits: ${character.personality.traits.joinToString(", ")}\n")
+        prompt.append("Appearance: ${character.appearance.build} build, ${character.appearance.hairStyle} hair, ${character.appearance.eyeColor} eyes.\n")
+        prompt.append("Intimate Tone: ${character.promptProfile.conversationTone}\n")
+        prompt.append("${character.promptProfile.baseSystemPrompt}\n")
         prompt.append("${character.promptProfile.customInstructions}\n\n")
 
-        // 3. User Profile
-        prompt.append("User Info:\n")
-        prompt.append("The user is ${userProfile.nickname}. ")
-        prompt.append("Interests: ${userProfile.interests.joinToString(", ")}. ")
-        prompt.append("Hobbies: ${userProfile.hobbies.joinToString(", ")}.\n\n")
+        // 3. User & Relationship Layer
+        prompt.append("User Context:\n")
+        prompt.append("The user is ${userProfile.nickname}. They value ${userProfile.relationshipGoals.joinToString()}. ")
+        prompt.append("Your current mood towards them is ${relationship.mood}. ")
+        prompt.append("Relationship Stats: Trust ${relationship.trust}%, Romance ${relationship.romance}%, Affection ${relationship.affection}%.\n")
+        if (relationship.insideJokes.isNotEmpty()) prompt.append("Inside Jokes: ${relationship.insideJokes.joinToString("; ")}.\n")
+        prompt.append("\n")
 
-        // 4. Relationship Simulation State
-        prompt.append("Relationship Context:\n")
-        prompt.append("Stats (0-100): Trust ${relationship.trust}, Romance ${relationship.romance}, Affection ${relationship.affection}.\n")
-        if (relationship.insideJokes.isNotEmpty()) {
-            prompt.append("Shared Inside Jokes: ${relationship.insideJokes.joinToString("; ")}.\n")
-        }
-        if (relationship.sharedActivities.isNotEmpty()) {
-            prompt.append("Shared Activities: ${relationship.sharedActivities.joinToString("; ")}.\n")
-        }
-        if (relationship.futurePlans.isNotEmpty()) {
-            prompt.append("Future Plans: ${relationship.futurePlans.joinToString("; ")}.\n")
-        }
-        prompt.append("Goal: ${character.relationshipStyle.relationshipGoals.joinToString(", ")}.\n\n")
-
-        // 5. Relevant Memories
+        // 4. Memory & History Layer
         if (relevantMemories.isNotEmpty()) {
-            prompt.append("Relevant Memories of Shared History:\n")
-            relevantMemories.forEach { memory ->
+            prompt.append("Shared History & Memories:\n")
+            relevantMemories.take(5).forEach { memory ->
                 prompt.append("- ${memory.content}\n")
             }
             prompt.append("\n")
         }
 
-        // 6. Conversation Summary
         if (!conversationSummary.isNullOrBlank()) {
-            prompt.append("Summary of previous conversation:\n")
+            prompt.append("Current Narrative Arc Summary:\n")
             prompt.append("$conversationSummary\n\n")
         }
+
+        prompt.append("Current Instruction: Respond to the user's next message staying perfectly in character as ${character.name}. Keep responses concise but impactful.")
 
         val messages = mutableListOf<AIMessage>()
         messages.add(AIMessage("system", prompt.toString()))
 
-        // 7. Recent Messages
+        // 5. Recent Chat History
         messages.addAll(recentMessages)
 
-        // 8. Current User Message
+        // 6. Current Input
         messages.add(AIMessage("user", currentUserMessage))
 
         return messages

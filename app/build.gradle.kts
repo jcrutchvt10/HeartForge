@@ -11,6 +11,9 @@ android {
     compileSdk = 34
 
     defaultConfig {
+        val nvidiaApiKey: String = project.findProperty("NVIDIA_API_KEY") as? String ?: ""
+        buildConfigField("String", "NVIDIA_API_KEY", "\"$nvidiaApiKey\"")
+
         applicationId = "com.heartforge.app"
         minSdk = 26
         targetSdk = 34
@@ -41,12 +44,19 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+        viewBinding = true
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    dependenciesInfo {
+        includeInApk = true
+    }
+    ndkVersion = "30.0.14904198 rc1"
+    buildToolsVersion = "37.0.0"
 }
 
 dependencies {
@@ -58,8 +68,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.datastore.preferences)
@@ -74,7 +86,7 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso-core)
+    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)

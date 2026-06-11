@@ -1,12 +1,17 @@
 package com.heartforge.app.core.repository
 
+import android.util.Log
 import com.heartforge.app.core.ai.*
 import com.heartforge.app.core.database.MessageDao
 import com.heartforge.app.core.database.toExternal
 import com.heartforge.app.core.database.toEntity
 import com.heartforge.app.core.model.*
 import com.heartforge.app.core.util.DataInitializer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.util.UUID
@@ -24,12 +29,19 @@ class ChatRepositoryImpl @Inject constructor(
     private val imageEngine: com.heartforge.app.core.ai.ImageEngine
 ) : ChatRepository {
 
+    private val TAG = "ChatRepositoryImpl"
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override fun getMessages(characterId: String): Flow<List<ChatMessage>> {
         return messageDao.getMessages(characterId).map { list -> list.map { it.toExternal() } }
     }
 
     override suspend fun sendMessage(characterId: String, content: String, storyContext: String?) {
-        val character = characterRepository.getCharacter(characterId) ?: return
+        Log.d(TAG, "sendMessage: characterId=$characterId, content='$content'")
+        val character = characterRepository.getCharacter(characterId) ?: run {
+            Log.e(TAG, "sendMessage failed: Character not found")
+            return
+        }
         val userProfile = dataInitializer.getMockUserProfile()
         val relationship = relationshipRepository.getRelationship(characterId).first() 
             ?: Relationship(characterId, 50, 20, 50, 30, 0, 10, 10, 20, 10)
@@ -44,7 +56,22 @@ class ChatRepositoryImpl @Inject constructor(
         messageDao.insertMessage(userMessage.toEntity())
 
         // 2. Detect Photo Intent
-        // ... (existing logic)
+        if (isPhotoRequest(content)) {
+            val scene = determineScene(content)
+            scope.launch {
+                val imageResult = imageEngine.generateContextualImage(character, scene)
+                if (imageResult is ImageResult.Success) {
+                    val photoMessage = ChatMessage(
+                        id = UUID.randomUUID().toString(),
+                        characterId = characterId,
+                        role = MessageRole.Assistant,
+                        content = "Here's a photo for you! 😉",
+                        imageUrl = imageResult.base64 // This is actually the local path saved by ImageEngine
+                    )
+                    messageDao.insertMessage(photoMessage.toEntity())
+                }
+            }
+        }
 
         // 3. Prepare Context
         val recentHistory = messageDao.getRecentMessages(characterId, 10)
@@ -66,17 +93,29 @@ class ChatRepositoryImpl @Inject constructor(
         // 3. Call AI
         // For M3, we just get the first result. Streaming UI will be handled in ViewModel.
         aiProvider.chat(aiPrompt).collect { result ->
-            if (result is AIResult.Success) {
-                val assistantMessage = ChatMessage(
-                    id = UUID.randomUUID().toString(),
-                    characterId = characterId,
-                    role = MessageRole.Assistant,
-                    content = result.content
-                )
-                messageDao.insertMessage(assistantMessage.toEntity())
-                
-                // 4. Evolve Relationship
-                evolutionaryEngine.evolveRelationship(character, content, result.content)
+            when (result) {
+                is AIResult.Success -> {
+                    val assistantMessage = ChatMessage(
+                        id = UUID.randomUUID().toString(),
+                        characterId = characterId,
+                        role = MessageRole.Assistant,
+                        content = result.content
+                    )
+                    messageDao.insertMessage(assistantMessage.toEntity())
+                    
+                    // 4. Evolve Relationship
+                    evolutionaryEngine.evolveRelationship(character, content, result.content)
+                }
+                is AIResult.Error -> {
+                    val errorMessage = ChatMessage(
+                        id = UUID.randomUUID().toString(),
+                        characterId = characterId,
+                        role = MessageRole.System,
+                        content = "Error: ${result.message}"
+                    )
+                    messageDao.insertMessage(errorMessage.toEntity())
+                }
+                else -> {}
             }
         }
     }

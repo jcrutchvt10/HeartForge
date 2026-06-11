@@ -25,13 +25,13 @@ data class ChatCompletionResponse(
 data class ChatChoice(
     val index: Int,
     val message: ChatMessage,
-    val finishReason: String?
+    @SerializedName("finish_reason") val finishReason: String?
 )
 
 data class ChatUsage(
-    val promptTokens: Int,
-    val completionTokens: Int,
-    val totalTokens: Int
+    @SerializedName("prompt_tokens") val promptTokens: Int,
+    @SerializedName("completion_tokens") val completionTokens: Int,
+    @SerializedName("total_tokens") val totalTokens: Int
 )
 
 data class ImageGenerationRequest(
@@ -53,4 +53,18 @@ data class ImageGenerationResponse(
 data class ImageData(
     val b64_json: String?,
     val url: String?
+)
+
+data class ChatCompletionChunk(
+    val id: String,
+    val choices: List<ChatChunkChoice>
+)
+
+data class ChatChunkChoice(
+    val delta: ChatDelta,
+    @SerializedName("finish_reason") val finishReason: String?
+)
+
+data class ChatDelta(
+    val content: String?
 )

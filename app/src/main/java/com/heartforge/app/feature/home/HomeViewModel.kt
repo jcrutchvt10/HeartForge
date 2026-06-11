@@ -3,6 +3,7 @@ package com.heartforge.app.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.heartforge.app.core.model.Character
+import com.heartforge.app.core.database.toExternal
 import com.heartforge.app.core.repository.CharacterRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -34,7 +35,8 @@ class HomeViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             var characters = characterRepository.getCharacters()
-            if (characters.isEmpty()) {
+            // Force re-population for Edgy Roster v10 (Verified Photos & Gallery)
+            if (characters.size < 20 || !characters.any { it.imageProfile.casualId != null }) {
                 dataInitializer.populateSampleData()
                 characters = characterRepository.getCharacters()
             }
