@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.heartforge.app.feature.creator.DraftCharacter
+import com.heartforge.app.ui.components.GlassSurface
 
 @Composable
 fun BondStep(
@@ -18,44 +19,52 @@ fun BondStep(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text("Your relationship", style = MaterialTheme.typography.headlineSmall)
-
-        OutlinedTextField(
-            value = draft.relationshipStyle.loveLanguages.joinToString(", "),
-            onValueChange = { onUpdate(draft.copy(relationshipStyle = draft.relationshipStyle.copy(loveLanguages = it.split(",").map { t -> t.trim() }))) },
-            label = { Text("Love Languages") },
-            modifier = Modifier.fillMaxWidth()
+        Text(
+            "Forge Your Bond",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary
         )
 
-        OutlinedTextField(
-            value = draft.relationshipStyle.flirtingStyle,
-            onValueChange = { onUpdate(draft.copy(relationshipStyle = draft.relationshipStyle.copy(flirtingStyle = it))) },
-            label = { Text("Flirting Style") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        GlassSurface(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                OutlinedTextField(
+                    value = draft.relationshipStyle.loveLanguages.joinToString(", "),
+                    onValueChange = { onUpdate(draft.copy(relationshipStyle = draft.relationshipStyle.copy(loveLanguages = it.split(",").map { t -> t.trim() }.filter { it.isNotEmpty() }))) },
+                    label = { Text("Love Languages (e.g. Physical Touch)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-        OutlinedTextField(
-            value = draft.relationshipStyle.relationshipGoals.joinToString(", "),
-            onValueChange = { onUpdate(draft.copy(relationshipStyle = draft.relationshipStyle.copy(relationshipGoals = it.split(",").map { t -> t.trim() }))) },
-            label = { Text("Relationship Goals") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        
-        OutlinedTextField(
-            value = draft.likes.joinToString(", "),
-            onValueChange = { onUpdate(draft.copy(likes = it.split(",").map { t -> t.trim() }, hobbies = it.split(",").map { t -> t.trim() })) },
-            label = { Text("His Likes / Hobbies") },
-            modifier = Modifier.fillMaxWidth()
-        )
+                OutlinedTextField(
+                    value = draft.relationshipStyle.flirtingStyle,
+                    onValueChange = { onUpdate(draft.copy(relationshipStyle = draft.relationshipStyle.copy(flirtingStyle = it))) },
+                    label = { Text("Flirting Style (e.g. Teasing)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-        OutlinedTextField(
-            value = draft.dislikes.joinToString(", "),
-            onValueChange = { onUpdate(draft.copy(dislikes = it.split(",").map { t -> t.trim() })) },
-            label = { Text("His Dislikes") },
-            modifier = Modifier.fillMaxWidth()
-        )
+                OutlinedTextField(
+                    value = draft.relationshipStyle.relationshipGoals.joinToString(", "),
+                    onValueChange = { onUpdate(draft.copy(relationshipStyle = draft.relationshipStyle.copy(relationshipGoals = it.split(",").map { t -> t.trim() }.filter { it.isNotEmpty() }))) },
+                    label = { Text("Relationship Goals (e.g. Long-term)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                OutlinedTextField(
+                    value = draft.likes.joinToString(", "),
+                    onValueChange = { onUpdate(draft.copy(likes = it.split(",").map { t -> t.trim() }.filter { it.isNotEmpty() }, hobbies = it.split(",").map { t -> t.trim() }.filter { it.isNotEmpty() })) },
+                    label = { Text("His Hobbies / Likes") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = draft.dislikes.joinToString(", "),
+                    onValueChange = { onUpdate(draft.copy(dislikes = it.split(",").map { t -> t.trim() }.filter { it.isNotEmpty() })) },
+                    label = { Text("His Dislikes") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
     }
 }

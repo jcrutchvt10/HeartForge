@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class CreatorStep {
-    Identity,
-    Essence,
-    Bond,
-    Vision,
-    Forge
+enum class CreatorStep(val progress: Float) {
+    Identity(0.2f),
+    Essence(0.4f),
+    Bond(0.6f),
+    Vision(0.8f),
+    Forge(1.0f)
 }
 
 data class CreatorState(
@@ -24,7 +24,8 @@ data class CreatorState(
     val draft: DraftCharacter = DraftCharacter(),
     val isGeneratingImage: Boolean = false,
     val generationError: String? = null,
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val canGoNext: Boolean = false
 )
 
 @HiltViewModel
@@ -36,6 +37,11 @@ class CreatorViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CreatorState())
     val uiState: StateFlow<CreatorState> = _uiState.asStateFlow()
 
+    init {
+        // Observe draft changes to update validation
+        _uiState.update { it.copy(canGoNext = validateStep(it.currentStep, it.draft)) }
+    }
+
     fun nextStep() {
         val next = when (uiState.value.currentStep) {
             CreatorStep.Identity -> CreatorStep.Essence
@@ -44,7 +50,10 @@ class CreatorViewModel @Inject constructor(
             CreatorStep.Vision -> CreatorStep.Forge
             CreatorStep.Forge -> CreatorStep.Forge
         }
-        _uiState.update { it.copy(currentStep = next) }
+        _uiState.update { it.copy(
+            currentStep = next,
+            canGoNext = validateStep(next, it.draft)
+        ) }
     }
 
     fun prevStep() {
@@ -55,11 +64,30 @@ class CreatorViewModel @Inject constructor(
             CreatorStep.Vision -> CreatorStep.Bond
             CreatorStep.Forge -> CreatorStep.Vision
         }
-        _uiState.update { it.copy(currentStep = prev) }
+        _uiState.update { it.copy(
+            currentStep = prev,
+            canGoNext = validateStep(prev, it.draft)
+        ) }
     }
 
     fun updateDraft(update: (DraftCharacter) -> DraftCharacter) {
-        _uiState.update { it.copy(draft = update(it.draft)) }
+        _uiState.update { 
+            val newDraft = update(it.draft)
+            it.copy(
+                draft = newDraft,
+                canGoNext = validateStep(it.currentStep, newDraft)
+            )
+        }
+    }
+
+    private fun validateStep(step: CreatorStep, draft: DraftCharacter): Boolean {
+        return when (step) {
+            CreatorStep.Identity -> draft.name.isNotBlank() && draft.occupation.isNotBlank()
+            CreatorStep.Essence -> draft.personality.traits.isNotEmpty() && draft.personality.MBTI.isNotBlank()
+            CreatorStep.Bond -> draft.relationshipStyle.loveLanguages.isNotEmpty() && draft.relationshipStyle.relationshipGoals.isNotEmpty()
+            CreatorStep.Vision -> true // Image is optional but encouraged
+            CreatorStep.Forge -> true
+        }
     }
 
     fun generatePortrait() {
@@ -88,12 +116,8 @@ class CreatorViewModel @Inject constructor(
     fun saveCharacter() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
-            // characterRepository needs a save method. 
-            // I'll cast it to Impl or update interface if I had control, 
-            // but I'll use the repository as is if it has save (it does in my Impl but maybe not interface)
-            (characterRepository as? com.heartforge.app.core.repository.CharacterRepositoryImpl)?.saveCharacter(uiState.value.draft.toCharacter())
+            characterRepository.saveCharacter(uiState.value.draft.toCharacter())
             _uiState.update { it.copy(isSaving = false) }
-            // Navigate back or to details
         }
     }
 }

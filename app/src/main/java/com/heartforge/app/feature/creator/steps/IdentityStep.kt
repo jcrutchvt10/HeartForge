@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.heartforge.app.feature.creator.DraftCharacter
+import com.heartforge.app.ui.components.GlassSurface
 
 @Composable
 fun IdentityStep(
@@ -18,45 +19,59 @@ fun IdentityStep(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text("Tell us about him", style = MaterialTheme.typography.headlineSmall)
+        Text(
+            "Forge His Identity",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
         
-        OutlinedTextField(
-            value = draft.name,
-            onValueChange = { onUpdate(draft.copy(name = it)) },
-            label = { Text("Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        GlassSurface(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                OutlinedTextField(
+                    value = draft.name,
+                    onValueChange = { onUpdate(draft.copy(name = it)) },
+                    label = { Text("Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
-        OutlinedTextField(
-            value = draft.age.toString(),
-            onValueChange = { onUpdate(draft.copy(age = it.toIntOrNull() ?: 0)) },
-            label = { Text("Age") },
-            modifier = Modifier.fillMaxWidth()
-        )
+                Column {
+                    Text("Age: ${draft.age}", style = MaterialTheme.typography.labelLarge)
+                    Slider(
+                        value = draft.age.toFloat(),
+                        onValueChange = { onUpdate(draft.copy(age = it.toInt())) },
+                        valueRange = 18f..99f,
+                        steps = 81
+                    )
+                }
 
-        OutlinedTextField(
-            value = draft.occupation,
-            onValueChange = { onUpdate(draft.copy(occupation = it)) },
-            label = { Text("Occupation") },
-            modifier = Modifier.fillMaxWidth()
-        )
+                OutlinedTextField(
+                    value = draft.occupation,
+                    onValueChange = { onUpdate(draft.copy(occupation = it)) },
+                    label = { Text("Occupation") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
-        OutlinedTextField(
-            value = draft.location,
-            onValueChange = { onUpdate(draft.copy(location = it)) },
-            label = { Text("Location") },
-            modifier = Modifier.fillMaxWidth()
-        )
+                OutlinedTextField(
+                    value = draft.location,
+                    onValueChange = { onUpdate(draft.copy(location = it)) },
+                    label = { Text("Location") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
-        OutlinedTextField(
-            value = draft.biography,
-            onValueChange = { onUpdate(draft.copy(biography = it)) },
-            label = { Text("Biography") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3
-        )
+                OutlinedTextField(
+                    value = draft.biography,
+                    onValueChange = { onUpdate(draft.copy(biography = it)) },
+                    label = { Text("Biography / Backstory") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 4
+                )
+            }
+        }
     }
 }
