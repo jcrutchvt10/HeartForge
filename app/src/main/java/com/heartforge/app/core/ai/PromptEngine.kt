@@ -25,13 +25,13 @@ class PromptEngine @Inject constructor() {
         prompt.append("System Instructions:\n")
         prompt.append("${character.promptProfile.baseSystemPrompt}\n\n")
 
-        // 2. Character Prompt
+        // 2. Character Profile & Current Mood
         prompt.append("Character Profile:\n")
         prompt.append("Name: ${character.name}\n")
         prompt.append("Personality: ${character.personality.traits.joinToString(", ")}\n")
         prompt.append("Occupation: ${character.occupation}\n")
-        prompt.append("Bio: ${character.biography}\n")
         prompt.append("Tone: ${character.promptProfile.conversationTone}\n")
+        prompt.append("Current Mood: ${character.name} is feeling ${relationship.mood} towards the user.\n")
         prompt.append("${character.promptProfile.customInstructions}\n\n")
 
         // 3. User Profile
@@ -40,16 +40,25 @@ class PromptEngine @Inject constructor() {
         prompt.append("Interests: ${userProfile.interests.joinToString(", ")}. ")
         prompt.append("Hobbies: ${userProfile.hobbies.joinToString(", ")}.\n\n")
 
-        // 4. Relationship Memory
+        // 4. Relationship Simulation State
         prompt.append("Relationship Context:\n")
-        prompt.append("Trust: ${relationship.trust}/100, Romance: ${relationship.romance}/100. ")
-        prompt.append("Relationship Goals: ${character.relationshipStyle.relationshipGoals.joinToString(", ")}.\n\n")
+        prompt.append("Stats (0-100): Trust ${relationship.trust}, Romance ${relationship.romance}, Affection ${relationship.affection}.\n")
+        if (relationship.insideJokes.isNotEmpty()) {
+            prompt.append("Shared Inside Jokes: ${relationship.insideJokes.joinToString("; ")}.\n")
+        }
+        if (relationship.sharedActivities.isNotEmpty()) {
+            prompt.append("Shared Activities: ${relationship.sharedActivities.joinToString("; ")}.\n")
+        }
+        if (relationship.futurePlans.isNotEmpty()) {
+            prompt.append("Future Plans: ${relationship.futurePlans.joinToString("; ")}.\n")
+        }
+        prompt.append("Goal: ${character.relationshipStyle.relationshipGoals.joinToString(", ")}.\n\n")
 
         // 5. Relevant Memories
         if (relevantMemories.isNotEmpty()) {
             prompt.append("Relevant Memories of Shared History:\n")
             relevantMemories.forEach { memory ->
-                prompt.append("- ${memory.content} (Importance: ${memory.importance})\n")
+                prompt.append("- ${memory.content}\n")
             }
             prompt.append("\n")
         }

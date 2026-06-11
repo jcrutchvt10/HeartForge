@@ -55,6 +55,13 @@ fun AppNavigation(
         }
 
         composable(
+            route = Destination.Memories.route,
+            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
+        ) {
+            com.heartforge.app.feature.memories.MemoryScreen(navController)
+        }
+
+        composable(
             route = Destination.CharacterProfile.route,
             arguments = listOf(navArgument("characterId") { type = NavType.StringType })
         ) {

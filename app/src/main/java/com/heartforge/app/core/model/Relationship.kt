@@ -10,5 +10,9 @@ data class Relationship(
     val loyalty: Int,
     val intimacy: Int,
     val playfulness: Int,
-    val excitement: Int
+    val excitement: Int,
+    val mood: String = "Neutral",
+    val insideJokes: List<String> = emptyList(),
+    val sharedActivities: List<String> = emptyList(),
+    val futurePlans: List<String> = emptyList()
 )

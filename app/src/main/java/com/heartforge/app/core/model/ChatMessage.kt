@@ -7,6 +7,7 @@ data class ChatMessage(
     val characterId: String,
     val role: MessageRole,
     val content: String,
+    val imageUrl: String? = null,
     val timestamp: Instant = Instant.now(),
     val status: MessageStatus = MessageStatus.Sent
 )

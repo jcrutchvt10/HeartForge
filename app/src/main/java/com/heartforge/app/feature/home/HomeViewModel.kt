@@ -12,13 +12,16 @@ import javax.inject.Inject
 data class HomeState(
     val activeCharacter: Character? = null,
     val recommendedMatches: List<Character> = emptyList(),
+    val recentMemories: List<com.heartforge.app.core.model.Memory> = emptyList(),
+    val galleryPreviews: List<String> = emptyList(),
     val isLoading: Boolean = true
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val characterRepository: com.heartforge.app.core.repository.CharacterRepository,
-    private val dataInitializer: com.heartforge.app.core.util.DataInitializer
+    val characterRepository: com.heartforge.app.core.repository.CharacterRepository,
+    private val dataInitializer: com.heartforge.app.core.util.DataInitializer,
+    private val memoryDao: com.heartforge.app.core.database.MemoryDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -35,9 +38,20 @@ class HomeViewModel @Inject constructor(
                 dataInitializer.populateSampleData()
                 characters = characterRepository.getCharacters()
             }
+
+            val memories = characters.firstOrNull()?.let { 
+                memoryDao.getRelevantMemories(it.id, 1).map { m -> m.toExternal() }
+            } ?: emptyList()
+
+            val previews = characters.flatMap { character ->
+                listOfNotNull(character.imageProfile.portraitId, character.imageProfile.casualId)
+            }.take(8)
+
             _uiState.value = HomeState(
                 activeCharacter = characters.firstOrNull(),
                 recommendedMatches = characters.drop(1).take(4),
+                recentMemories = memories,
+                galleryPreviews = previews,
                 isLoading = false
             )
         }

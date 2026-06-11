@@ -16,11 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.heartforge.app.core.model.ChatMessage
 import com.heartforge.app.core.model.MessageRole
 import com.heartforge.app.ui.theme.RoseRed
@@ -34,7 +36,6 @@ fun ChatScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyListState()
-    val scope = rememberCoroutineKey(state.messages.size)
 
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
@@ -46,10 +47,16 @@ fun ChatScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(state.character?.name ?: "Chat", style = MaterialTheme.typography.titleMedium)
-                        state.relationship?.let {
-                            RelationshipMeterMini(trust = it.trust, romance = it.romance)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(state.character?.name ?: "Chat", style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                MoodIndicator(state.relationship?.mood ?: "Neutral")
+                            }
+                            state.relationship?.let {
+                                RelationshipMeterMini(trust = it.trust, romance = it.romance)
+                            }
                         }
                     }
                 },
@@ -107,13 +114,41 @@ fun ChatBubble(message: ChatMessage) {
             shape = shape,
             tonalElevation = 2.dp
         ) {
-            Text(
-                text = message.content,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                if (message.imageUrl != null) {
+                    AsyncImage(
+                        model = message.imageUrl,
+                        contentDescription = "Shared Image",
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .padding(bottom = 8.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                if (message.content.isNotBlank()) {
+                    Text(
+                        text = message.content,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+fun MoodIndicator(mood: String) {
+    val emoji = when (mood.lowercase()) {
+        "happy" -> "😊"
+        "affectionate", "loving" -> "🔥"
+        "jealous" -> "😒"
+        "playful" -> "😜"
+        "distant" -> "🌫️"
+        else -> "😐"
+    }
+    Text(emoji, style = MaterialTheme.typography.titleMedium)
 }
 
 @Composable
@@ -184,9 +219,4 @@ fun TypingIndicator(name: String) {
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
     }
-}
-
-@Composable
-fun rememberCoroutineKey(key: Any?): kotlinx.coroutines.CoroutineScope {
-    return rememberCoroutineScope()
 }

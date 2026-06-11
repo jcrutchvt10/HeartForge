@@ -15,7 +15,11 @@ data class RelationshipEntity(
     val loyalty: Int,
     val intimacy: Int,
     val playfulness: Int,
-    val excitement: Int
+    val excitement: Int,
+    val mood: String,
+    val insideJokes: List<String>,
+    val sharedActivities: List<String>,
+    val futurePlans: List<String>
 )
 
 fun RelationshipEntity.toExternal() = Relationship(
@@ -28,7 +32,11 @@ fun RelationshipEntity.toExternal() = Relationship(
     loyalty = loyalty,
     intimacy = intimacy,
     playfulness = playfulness,
-    excitement = excitement
+    excitement = excitement,
+    mood = mood,
+    insideJokes = insideJokes,
+    sharedActivities = sharedActivities,
+    futurePlans = futurePlans
 )
 
 fun Relationship.toEntity() = RelationshipEntity(
@@ -41,5 +49,9 @@ fun Relationship.toEntity() = RelationshipEntity(
     loyalty = loyalty,
     intimacy = intimacy,
     playfulness = playfulness,
-    excitement = excitement
+    excitement = excitement,
+    mood = mood,
+    insideJokes = insideJokes,
+    sharedActivities = sharedActivities,
+    futurePlans = futurePlans
 )

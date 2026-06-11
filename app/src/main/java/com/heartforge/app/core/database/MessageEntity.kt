@@ -13,6 +13,7 @@ data class MessageEntity(
     val characterId: String,
     val role: MessageRole,
     val content: String,
+    val imageUrl: String?,
     val timestamp: Instant,
     val status: MessageStatus
 )
@@ -22,6 +23,7 @@ fun MessageEntity.toExternal() = ChatMessage(
     characterId = characterId,
     role = role,
     content = content,
+    imageUrl = imageUrl,
     timestamp = timestamp,
     status = status
 )
@@ -31,6 +33,7 @@ fun ChatMessage.toEntity() = MessageEntity(
     characterId = characterId,
     role = role,
     content = content,
+    imageUrl = imageUrl,
     timestamp = timestamp,
     status = status
 )
