@@ -20,6 +20,10 @@ sealed class Destination(val route: String) {
         fun createRoute(id: String) = "memories/$id"
     }
 
+    data object Stories : Destination("stories/{characterId}") {
+        fun createRoute(id: String) = "stories/$id"
+    }
+
     data object CharacterProfile : Destination("profile/{characterId}") {
         fun createRoute(id: String) = "profile/$id"
     }

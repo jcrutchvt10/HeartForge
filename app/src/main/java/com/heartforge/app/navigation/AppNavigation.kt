@@ -16,6 +16,7 @@ import com.heartforge.app.feature.matches.MatchScreen
 import com.heartforge.app.feature.settings.SettingsScreen
 import com.heartforge.app.feature.matches.CharacterProfileScreen
 import com.heartforge.app.feature.memories.MemoryScreen
+import com.heartforge.app.feature.stories.StoryScreen
 
 @Composable
 fun AppNavigation(
@@ -67,8 +68,17 @@ fun AppNavigation(
         composable(
             route = Destination.Memories.route,
             arguments = listOf(navArgument("characterId") { type = NavType.StringType })
-        ) {
-            MemoryScreen(navController)
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("characterId") ?: ""
+            MemoryScreen(navController = navController)
+        }
+
+        composable(
+            route = Destination.Stories.route,
+            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("characterId") ?: ""
+            StoryScreen(characterId = id, navController = navController)
         }
 
         composable(

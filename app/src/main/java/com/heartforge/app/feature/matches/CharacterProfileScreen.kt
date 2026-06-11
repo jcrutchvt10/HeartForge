@@ -143,6 +143,15 @@ fun CharacterProfileScreen(
                 Spacer(modifier = Modifier.height(40.dp))
                 
                 Button(
+                    onClick = { navController.navigate(com.heartforge.app.navigation.Destination.Stories.createRoute(character.id)) },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = DeepPurple)
+                ) {
+                    Text("Enter Story Mode")
+                }
+
+                OutlinedButton(
                     onClick = { navController.navigate(com.heartforge.app.navigation.Destination.Chat.createRoute(character.id)) },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp)

@@ -45,4 +45,10 @@ abstract class RepositoryModule {
     abstract fun bindRelationshipRepository(
         relationshipRepositoryImpl: com.heartforge.app.core.repository.RelationshipRepositoryImpl
     ): com.heartforge.app.core.repository.RelationshipRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStoryRepository(
+        storyRepositoryImpl: com.heartforge.app.core.repository.StoryRepositoryImpl
+    ): com.heartforge.app.core.repository.StoryRepository
 }

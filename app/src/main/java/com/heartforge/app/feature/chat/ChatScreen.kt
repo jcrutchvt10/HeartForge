@@ -52,26 +52,41 @@ fun ChatScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
             ) {
-                TopAppBar(
-                    title = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(state.character?.name ?: "Chat", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                MoodIndicator(state.relationship?.mood ?: "Neutral")
+                Column {
+                    TopAppBar(
+                        title = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(state.character?.name ?: "Chat", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    MoodIndicator(state.relationship?.mood ?: "Neutral")
+                                }
+                                state.relationship?.let {
+                                    RelationshipMeterMini(trust = it.trust, romance = it.romance)
+                                }
                             }
-                            state.relationship?.let {
-                                RelationshipMeterMini(trust = it.trust, romance = it.romance)
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                             }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                    )
+                    state.activeStoryChapter?.let { chapter ->
+                        Surface(
+                            color = RoseRed.copy(alpha = 0.1f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Current Story: ${chapter.title}",
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = RoseRed
+                            )
                         }
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-                )
+                    }
+                }
             }
         },
         bottomBar = {

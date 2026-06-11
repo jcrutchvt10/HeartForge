@@ -9,9 +9,10 @@ import androidx.room.TypeConverters
         CharacterEntity::class,
         RelationshipEntity::class,
         MemoryEntity::class,
-        MessageEntity::class
+        MessageEntity::class,
+        StoryProgressEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -20,4 +21,5 @@ abstract class HeartForgeDatabase : RoomDatabase() {
     abstract fun relationshipDao(): RelationshipDao
     abstract fun memoryDao(): MemoryDao
     abstract fun messageDao(): MessageDao
+    abstract fun storyDao(): StoryDao
 }

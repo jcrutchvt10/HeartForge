@@ -8,7 +8,8 @@ interface ChatRepository {
     
     suspend fun sendMessage(
         characterId: String,
-        content: String
+        content: String,
+        storyContext: String? = null
     )
 
     suspend fun clearHistory(characterId: String)

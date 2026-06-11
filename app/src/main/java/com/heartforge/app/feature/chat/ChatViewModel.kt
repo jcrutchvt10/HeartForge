@@ -3,12 +3,11 @@ package com.heartforge.app.feature.chat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.heartforge.app.core.model.Character
-import com.heartforge.app.core.model.ChatMessage
-import com.heartforge.app.core.model.Relationship
+import com.heartforge.app.core.model.*
 import com.heartforge.app.core.repository.CharacterRepository
 import com.heartforge.app.core.repository.ChatRepository
 import com.heartforge.app.core.repository.RelationshipRepository
+import com.heartforge.app.core.repository.StoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,6 +16,7 @@ import javax.inject.Inject
 data class ChatState(
     val character: Character? = null,
     val relationship: Relationship? = null,
+    val activeStoryChapter: StoryChapter? = null,
     val messages: List<ChatMessage> = emptyList(),
     val isAssistantTyping: Boolean = false,
     val currentInput: String = ""
@@ -27,6 +27,7 @@ class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val characterRepository: CharacterRepository,
     private val relationshipRepository: RelationshipRepository,
+    private val storyRepository: StoryRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -55,6 +56,19 @@ class ChatViewModel @Inject constructor(
                     _uiState.update { it.copy(relationship = relationship) }
                 }
             }
+
+            launch {
+                storyRepository.getProgressForCharacter(characterId).collect { progressList ->
+                    val activeId = progressList.firstOrNull()?.activeChapterId
+                    if (activeId != null) {
+                        val arc = storyRepository.getStoriesForCharacter(characterId).first().firstOrNull()
+                        val chapter = arc?.chapters?.find { it.id == activeId }
+                        _uiState.update { it.copy(activeStoryChapter = chapter) }
+                    } else {
+                        _uiState.update { it.copy(activeStoryChapter = null) }
+                    }
+                }
+            }
         }
     }
 
@@ -66,10 +80,14 @@ class ChatViewModel @Inject constructor(
         val message = uiState.value.currentInput
         if (message.isBlank()) return
 
+        val storyContext = uiState.value.activeStoryChapter?.let { 
+            "Current Narrative Scene: ${it.title}. Background: ${it.startingPrompt}"
+        }
+
         _uiState.update { it.copy(currentInput = "", isAssistantTyping = true) }
 
         viewModelScope.launch {
-            chatRepository.sendMessage(characterId, message)
+            chatRepository.sendMessage(characterId, message, storyContext)
         }
     }
 }

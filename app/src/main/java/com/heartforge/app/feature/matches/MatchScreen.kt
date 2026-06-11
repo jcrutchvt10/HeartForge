@@ -175,6 +175,21 @@ fun MatchCard(
                         )
                     }
                 }
+
+                profile.aiAudit?.let { audit ->
+                    Surface(
+                        modifier = Modifier.padding(top = 16.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "✨ ${audit.summary}",
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
+                    }
+                }
             }
         }
     }

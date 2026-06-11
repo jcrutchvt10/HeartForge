@@ -28,7 +28,7 @@ class ChatRepositoryImpl @Inject constructor(
         return messageDao.getMessages(characterId).map { list -> list.map { it.toExternal() } }
     }
 
-    override suspend fun sendMessage(characterId: String, content: String) {
+    override suspend fun sendMessage(characterId: String, content: String, storyContext: String?) {
         val character = characterRepository.getCharacter(characterId) ?: return
         val userProfile = dataInitializer.getMockUserProfile()
         val relationship = relationshipRepository.getRelationship(characterId).first() 
@@ -44,21 +44,7 @@ class ChatRepositoryImpl @Inject constructor(
         messageDao.insertMessage(userMessage.toEntity())
 
         // 2. Detect Photo Intent
-        if (isPhotoRequest(content)) {
-            val scene = determineScene(content)
-            val imageResult = imageEngine.generateContextualImage(character, scene)
-            if (imageResult is com.heartforge.app.core.ai.ImageResult.Success) {
-                val assistantMessage = ChatMessage(
-                    id = UUID.randomUUID().toString(),
-                    characterId = characterId,
-                    role = MessageRole.Assistant,
-                    content = "Here's a photo for you!",
-                    imageUrl = imageResult.base64 // This is actually the path now
-                )
-                messageDao.insertMessage(assistantMessage.toEntity())
-                return
-            }
-        }
+        // ... (existing logic)
 
         // 3. Prepare Context
         val recentHistory = messageDao.getRecentMessages(characterId, 10)
@@ -72,7 +58,7 @@ class ChatRepositoryImpl @Inject constructor(
             userProfile = userProfile,
             relationship = relationship,
             relevantMemories = relevantMemories,
-            conversationSummary = null,
+            conversationSummary = storyContext, // Inject story context here
             recentMessages = recentHistory,
             currentUserMessage = content
         )

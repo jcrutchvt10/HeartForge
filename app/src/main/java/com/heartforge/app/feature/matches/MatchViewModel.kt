@@ -18,7 +18,8 @@ data class MatchState(
 
 data class MatchProfile(
     val character: Character,
-    val compatibilityScore: Int
+    val compatibilityScore: Int,
+    val aiAudit: com.heartforge.app.core.ai.MatchmakingEngine.MatchmakingAudit? = null
 )
 
 @HiltViewModel
@@ -40,14 +41,34 @@ class MatchViewModel @Inject constructor(
             val characters = characterRepository.getCharacters()
             val user = dataInitializer.getMockUserProfile()
             
+            // Refined heuristic match for initial stack
             val profiles = characters.map { 
-                MatchProfile(it, matchmakingEngine.calculateCompatibility(user, it))
+                MatchProfile(it, matchmakingEngine.calculateHeuristicCompatibility(user, it))
             }.sortedByDescending { it.compatibilityScore }
 
             _uiState.value = MatchState(
                 currentProfiles = profiles,
                 isLoading = false
             )
+            
+            // Trigger AI audit for top profile
+            profiles.firstOrNull()?.let { performAiAudit(it) }
+        }
+    }
+
+    private fun performAiAudit(profile: MatchProfile) {
+        viewModelScope.launch {
+            val user = dataInitializer.getMockUserProfile()
+            val audit = matchmakingEngine.calculateAIDrivenCompatibility(user, profile.character)
+            
+            _uiState.update { state ->
+                val updatedProfiles = state.currentProfiles.map { p ->
+                    if (p.character.id == profile.character.id) {
+                        p.copy(compatibilityScore = audit.score, aiAudit = audit)
+                    } else p
+                }
+                state.copy(currentProfiles = updatedProfiles)
+            }
         }
     }
 
