@@ -28,7 +28,7 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override val imageModel: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[KEY_IMAGE_MODEL] ?: "nvidia/sdxl-turbo"
+        preferences[KEY_IMAGE_MODEL] ?: "black-forest-labs/flux-1-dev"
     }
 
     override val temperature: Flow<Float> = context.dataStore.data.map { preferences ->

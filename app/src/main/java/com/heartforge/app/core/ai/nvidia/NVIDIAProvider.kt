@@ -54,18 +54,18 @@ class NVIDIAProvider @Inject constructor(
         negativePrompt: String?
     ): ImageResult {
         val apiKey = settingsRepository.getApiKey() ?: return ImageResult.Error("API Key not configured")
-        val imageModel = runCatching { settingsRepository.imageModel.first() }.getOrDefault("nvidia/sdxl-turbo")
+        val imageModel = runCatching { settingsRepository.imageModel.first() }.getOrDefault("black-forest-labs/flux-1-dev")
 
         val request = ImageGenerationRequest(
             model = imageModel,
             prompt = prompt,
-            negativePrompt = negativePrompt
+            negative_prompt = negativePrompt
         )
 
         return try {
             val response = apiService.generateImage("Bearer $apiKey", request)
             if (response.isSuccessful) {
-                val base64 = response.body()?.artifacts?.firstOrNull()?.base64
+                val base64 = response.body()?.data?.firstOrNull()?.b64_json
                 if (base64 != null) ImageResult.Success(base64) else ImageResult.Error("No image generated")
             } else {
                 ImageResult.Error("API Error: ${response.code()}")

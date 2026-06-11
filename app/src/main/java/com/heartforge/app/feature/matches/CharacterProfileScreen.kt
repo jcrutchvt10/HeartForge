@@ -143,7 +143,7 @@ fun CharacterProfileScreen(
                 Spacer(modifier = Modifier.height(40.dp))
                 
                 Button(
-                    onClick = { /* Start Chat */ },
+                    onClick = { navController.navigate(com.heartforge.app.navigation.Destination.Chat.createRoute(character.id)) },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {

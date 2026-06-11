@@ -33,4 +33,7 @@ object DatabaseModule {
 
     @Provides
     fun provideMemoryDao(database: HeartForgeDatabase): MemoryDao = database.memoryDao()
+
+    @Provides
+    fun provideMessageDao(database: HeartForgeDatabase): com.heartforge.app.core.database.MessageDao = database.messageDao()
 }

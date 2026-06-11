@@ -37,21 +37,20 @@ data class ChatUsage(
 data class ImageGenerationRequest(
     val model: String,
     val prompt: String,
-    val negativePrompt: String? = null,
-    val sampler: String? = null,
-    val steps: Int = 30,
-    val cfgScale: Float = 7.0f,
-    val width: Int = 1024,
-    val height: Int = 1024,
-    val seed: Long? = null
+    val negative_prompt: String? = null,
+    val width: Int? = null,
+    val height: Int? = null,
+    val steps: Int? = null,
+    val cfg_scale: Float? = null,
+    val seed: Int? = null,
+    @SerializedName("response_format") val responseFormat: String = "b64_json"
 )
 
 data class ImageGenerationResponse(
-    val artifacts: List<ImageArtifact>
+    val data: List<ImageData>
 )
 
-data class ImageArtifact(
-    val base64: String,
-    val seed: Long,
-    val finishReason: String
+data class ImageData(
+    val b64_json: String?,
+    val url: String?
 )

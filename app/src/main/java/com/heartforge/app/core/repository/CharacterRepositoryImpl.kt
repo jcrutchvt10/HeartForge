@@ -21,7 +21,7 @@ class CharacterRepositoryImpl @Inject constructor(
         return characterDao.getCharacter(id)?.toExternal()
     }
     
-    suspend fun saveCharacter(character: Character) {
+    override suspend fun saveCharacter(character: Character) {
         characterDao.insertCharacter(character.toEntity())
     }
 }

@@ -56,7 +56,7 @@ fun HomeScreen(
                         CharacterCardLarge(
                             character = character, 
                             status = "Last seen 10 minutes ago",
-                            onClick = { navController.navigate(com.heartforge.app.navigation.Destination.CharacterProfile.createRoute(character.id)) }
+                            onClick = { navController.navigate(com.heartforge.app.navigation.Destination.Chat.createRoute(character.id)) }
                         )
                     }
                 }

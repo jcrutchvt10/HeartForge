@@ -6,7 +6,9 @@ sealed class Destination(val route: String) {
 
     data object Matches : Destination("matches")
 
-    data object Chat : Destination("chat")
+    data object Chat : Destination("chat/{characterId}") {
+        fun createRoute(id: String) = "chat/$id"
+    }
 
     data object Gallery : Destination("gallery")
 

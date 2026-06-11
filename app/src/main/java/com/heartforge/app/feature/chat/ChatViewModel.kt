@@ -1,0 +1,75 @@
+package com.heartforge.app.feature.chat
+
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.heartforge.app.core.model.Character
+import com.heartforge.app.core.model.ChatMessage
+import com.heartforge.app.core.model.Relationship
+import com.heartforge.app.core.repository.CharacterRepository
+import com.heartforge.app.core.repository.ChatRepository
+import com.heartforge.app.core.repository.RelationshipRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+data class ChatState(
+    val character: Character? = null,
+    val relationship: Relationship? = null,
+    val messages: List<ChatMessage> = emptyList(),
+    val isAssistantTyping: Boolean = false,
+    val currentInput: String = ""
+)
+
+@HiltViewModel
+class ChatViewModel @Inject constructor(
+    private val chatRepository: ChatRepository,
+    private val characterRepository: CharacterRepository,
+    private val relationshipRepository: RelationshipRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    private val characterId: String = checkNotNull(savedStateHandle["characterId"])
+
+    private val _uiState = MutableStateFlow(ChatState())
+    val uiState: StateFlow<ChatState> = _uiState.asStateFlow()
+
+    init {
+        loadData()
+    }
+
+    private fun loadData() {
+        viewModelScope.launch {
+            val character = characterRepository.getCharacter(characterId)
+            _uiState.update { it.copy(character = character) }
+
+            launch {
+                chatRepository.getMessages(characterId).collect { messages ->
+                    _uiState.update { it.copy(messages = messages, isAssistantTyping = false) }
+                }
+            }
+
+            launch {
+                relationshipRepository.getRelationship(characterId).collect { relationship ->
+                    _uiState.update { it.copy(relationship = relationship) }
+                }
+            }
+        }
+    }
+
+    fun onInputChange(input: String) {
+        _uiState.update { it.copy(currentInput = input) }
+    }
+
+    fun sendMessage() {
+        val message = uiState.value.currentInput
+        if (message.isBlank()) return
+
+        _uiState.update { it.copy(currentInput = "", isAssistantTyping = true) }
+
+        viewModelScope.launch {
+            chatRepository.sendMessage(characterId, message)
+        }
+    }
+}

@@ -35,7 +35,10 @@ fun AppNavigation(
             MatchScreen(navController)
         }
 
-        composable(Destination.Chat.route) {
+        composable(
+            route = Destination.Chat.route,
+            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
+        ) {
             ChatScreen(navController)
         }
 

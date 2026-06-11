@@ -62,4 +62,28 @@ class Converters {
         val listType = object : TypeToken<List<String>>() {}.type
         return gson.fromJson(value, listType)
     }
+
+    @TypeConverter
+    fun fromMessageRole(value: MessageRole): String = value.name
+
+    @TypeConverter
+    fun toMessageRole(value: String): MessageRole = MessageRole.valueOf(value)
+
+    @TypeConverter
+    fun fromMessageStatus(value: MessageStatus): String = value.name
+
+    @TypeConverter
+    fun toMessageStatus(value: String): MessageStatus = MessageStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromMemoryCategory(value: MemoryCategory): String = value.name
+
+    @TypeConverter
+    fun toMemoryCategory(value: String): MemoryCategory = MemoryCategory.valueOf(value)
+
+    @TypeConverter
+    fun fromSentiment(value: Sentiment): String = value.name
+
+    @TypeConverter
+    fun toSentiment(value: String): Sentiment = Sentiment.valueOf(value)
 }
