@@ -1,23 +1,21 @@
 package com.heartforge.app.navigation
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.heartforge.app.feature.chat.ChatScreen
 import com.heartforge.app.feature.creator.CreatorScreen
 import com.heartforge.app.feature.gallery.GalleryScreen
 import com.heartforge.app.feature.home.HomeScreen
 import com.heartforge.app.feature.matches.MatchScreen
 import com.heartforge.app.feature.settings.SettingsScreen
-
 import com.heartforge.app.feature.matches.CharacterProfileScreen
-import com.heartforge.app.feature.matches.MatchScreen
-import com.heartforge.app.feature.settings.SettingsScreen
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import com.heartforge.app.feature.memories.MemoryScreen
 
 @Composable
 fun AppNavigation(
@@ -25,7 +23,19 @@ fun AppNavigation(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Destination.Home.route
+        startDestination = Destination.Home.route,
+        enterTransition = {
+            slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(400)) + fadeIn(animationSpec = tween(400))
+        },
+        exitTransition = {
+            slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(400)) + fadeOut(animationSpec = tween(400))
+        },
+        popEnterTransition = {
+            slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(400)) + fadeIn(animationSpec = tween(400))
+        },
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(400)) + fadeOut(animationSpec = tween(400))
+        }
     ) {
         composable(Destination.Home.route) {
             HomeScreen(navController)
@@ -58,7 +68,7 @@ fun AppNavigation(
             route = Destination.Memories.route,
             arguments = listOf(navArgument("characterId") { type = NavType.StringType })
         ) {
-            com.heartforge.app.feature.memories.MemoryScreen(navController)
+            MemoryScreen(navController)
         }
 
         composable(

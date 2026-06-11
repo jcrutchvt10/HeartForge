@@ -26,6 +26,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.heartforge.app.core.model.Character
 import com.heartforge.app.core.model.Memory
+import com.heartforge.app.ui.components.GlassSurface
+import com.heartforge.app.ui.components.shimmerEffect
 import com.heartforge.app.ui.theme.RoseRed
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,16 +39,21 @@ fun HomeScreen(
     val state by viewModel.uiState.collectAsState()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("HeartForge ❤️", fontWeight = FontWeight.Bold) }
-            )
+            GlassSurface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
+            ) {
+                CenterAlignedTopAppBar(
+                    title = { Text("HeartForge ❤️", fontWeight = FontWeight.ExtraBold) },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+                )
+            }
         }
     ) { padding ->
         if (state.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            HomeShimmer(padding)
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -132,12 +139,24 @@ fun HomeScreen(
 }
 
 @Composable
+fun HomeShimmer(padding: PaddingValues) {
+    Column(
+        modifier = Modifier.padding(padding).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        repeat(3) {
+            Box(modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(24.dp)).shimmerEffect())
+        }
+    }
+}
+
+@Composable
 fun SectionHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(bottom = 8.dp)
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = 4.dp)
     )
 }
 
@@ -145,7 +164,8 @@ fun SectionHeader(title: String) {
 fun CharacterCardLarge(character: Character, status: String, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
-        shape = RoundedCornerShape(24.dp)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -161,7 +181,7 @@ fun CharacterCardLarge(character: Character, status: String, onClick: () -> Unit
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text(character.name, style = MaterialTheme.typography.titleMedium)
+                Text(character.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -172,7 +192,8 @@ fun CharacterCardLarge(character: Character, status: String, onClick: () -> Unit
 fun CharacterCardSmall(character: Character, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.width(140.dp).clickable { onClick() },
-        shape = RoundedCornerShape(24.dp)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -188,7 +209,7 @@ fun CharacterCardSmall(character: Character, onClick: () -> Unit = {}) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(character.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-            Text(character.personality.traits.firstOrNull() ?: "", style = MaterialTheme.typography.labelSmall)
+            Text(character.personality.traits.firstOrNull() ?: "", style = MaterialTheme.typography.labelSmall, color = RoseRed)
         }
     }
 }
@@ -198,7 +219,7 @@ fun MemorySnippet(memory: Memory, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
     ) {
         Row(
             modifier = Modifier.padding(12.dp),

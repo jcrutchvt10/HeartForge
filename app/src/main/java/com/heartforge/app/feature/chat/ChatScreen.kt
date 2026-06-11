@@ -1,5 +1,7 @@
 package com.heartforge.app.feature.chat
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,8 +27,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.heartforge.app.core.model.ChatMessage
 import com.heartforge.app.core.model.MessageRole
+import com.heartforge.app.ui.components.GlassSurface
 import com.heartforge.app.ui.theme.RoseRed
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,13 +46,17 @@ fun ChatScreen(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+            GlassSurface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
+            ) {
+                TopAppBar(
+                    title = {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(state.character?.name ?: "Chat", style = MaterialTheme.typography.titleMedium)
+                                Text(state.character?.name ?: "Chat", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 MoodIndicator(state.relationship?.mood ?: "Neutral")
                             }
@@ -58,21 +64,27 @@ fun ChatScreen(
                                 RelationshipMeterMini(trust = it.trust, romance = it.romance)
                             }
                         }
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                )
+            }
         },
         bottomBar = {
-            ChatInput(
-                value = state.currentInput,
-                onValueChange = { viewModel.onInputChange(it) },
-                onSend = { viewModel.sendMessage() }
-            )
+            GlassSurface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp, 24.dp, 0.dp, 0.dp)
+            ) {
+                ChatInput(
+                    value = state.currentInput,
+                    onValueChange = { viewModel.onInputChange(it) },
+                    onSend = { viewModel.sendMessage() }
+                )
+            }
         }
     ) { padding ->
         LazyColumn(
@@ -83,8 +95,13 @@ fun ChatScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(state.messages) { message ->
-                ChatBubble(message)
+            items(state.messages, key = { it.id }) { message ->
+                AnimatedVisibility(
+                    visible = true,
+                    enter = slideInVertically(initialOffsetY = { 50 }) + fadeIn()
+                ) {
+                    ChatBubble(message)
+                }
             }
             if (state.isAssistantTyping) {
                 item {
@@ -99,12 +116,12 @@ fun ChatScreen(
 fun ChatBubble(message: ChatMessage) {
     val isUser = message.role == MessageRole.User
     val alignment = if (isUser) Alignment.End else Alignment.Start
-    val containerColor = if (isUser) RoseRed else MaterialTheme.colorScheme.surfaceVariant
+    val containerColor = if (isUser) RoseRed else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
     val contentColor = if (isUser) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
     val shape = if (isUser) {
-        RoundedCornerShape(20.dp, 20.dp, 4.dp, 20.dp)
+        RoundedCornerShape(24.dp, 24.dp, 4.dp, 24.dp)
     } else {
-        RoundedCornerShape(20.dp, 20.dp, 20.dp, 4.dp)
+        RoundedCornerShape(24.dp, 24.dp, 24.dp, 4.dp)
     }
 
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = alignment) {
@@ -112,17 +129,17 @@ fun ChatBubble(message: ChatMessage) {
             color = containerColor,
             contentColor = contentColor,
             shape = shape,
-            tonalElevation = 2.dp
+            tonalElevation = 4.dp
         ) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                 if (message.imageUrl != null) {
                     AsyncImage(
                         model = message.imageUrl,
                         contentDescription = "Shared Image",
                         modifier = Modifier
-                            .fillMaxWidth(0.8f)
+                            .fillMaxWidth(0.85f)
                             .aspectRatio(1f)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(16.dp))
                             .padding(bottom = 8.dp),
                         contentScale = ContentScale.Crop
                     )
@@ -130,7 +147,8 @@ fun ChatBubble(message: ChatMessage) {
                 if (message.content.isNotBlank()) {
                     Text(
                         text = message.content,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        lineHeight = 24.sp
                     )
                 }
             }
@@ -157,36 +175,37 @@ fun ChatInput(
     onValueChange: (String) -> Unit,
     onSend: () -> Unit
 ) {
-    Surface(
-        tonalElevation = 8.dp,
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .padding(16.dp)
+            .navigationBarsPadding()
+            .imePadding(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text("Message...", color = Color.White.copy(alpha = 0.5f)) },
             modifier = Modifier
-                .padding(16.dp)
-                .navigationBarsPadding()
-                .imePadding(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                placeholder = { Text("Message...") },
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(24.dp)),
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
+                .weight(1f)
+                .clip(RoundedCornerShape(28.dp)),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White.copy(alpha = 0.05f),
+                unfocusedContainerColor = Color.White.copy(alpha = 0.05f),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                cursorColor = RoseRed
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = onSend,
-                colors = IconButtonDefaults.filledIconButtonColors(containerColor = RoseRed)
-            ) {
-                Icon(Icons.Default.Send, contentDescription = "Send", color = Color.White)
-            }
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        FloatingActionButton(
+            onClick = onSend,
+            containerColor = RoseRed,
+            contentColor = Color.White,
+            shape = CircleShape,
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(Icons.Default.Send, contentDescription = "Send", modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -199,24 +218,37 @@ fun RelationshipMeterMini(trust: Int, romance: Int) {
     ) {
         LinearProgressIndicator(
             progress = { trust / 100f },
-            modifier = Modifier.width(40.dp).height(4.dp).clip(CircleShape),
-            color = Color.Cyan
+            modifier = Modifier.width(44.dp).height(6.dp).clip(CircleShape),
+            color = Color(0xFF00E5FF),
+            trackColor = Color.White.copy(alpha = 0.1f)
         )
         LinearProgressIndicator(
             progress = { romance / 100f },
-            modifier = Modifier.width(40.dp).height(4.dp).clip(CircleShape),
-            color = RoseRed
+            modifier = Modifier.width(44.dp).height(6.dp).clip(CircleShape),
+            color = RoseRed,
+            trackColor = Color.White.copy(alpha = 0.1f)
         )
     }
 }
 
 @Composable
 fun TypingIndicator(name: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    val infiniteTransition = rememberInfiniteTransition(label = "typing")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
+    Row(modifier = Modifier.padding(start = 12.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
             "$name is typing...",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha)
         )
     }
 }
