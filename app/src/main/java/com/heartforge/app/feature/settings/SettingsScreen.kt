@@ -10,8 +10,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.heartforge.app.ui.theme.RoseRed
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     navController: NavController,
@@ -51,31 +52,65 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = state.chatModel,
-                onValueChange = { viewModel.updateChatModel(it) },
-                label = { Text("Chat Model") },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    if (state.isRefreshingModels) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                    } else {
-                        TextButton(onClick = { viewModel.refreshModels() }) {
-                            Text("Refresh")
-                        }
-                    }
-                }
-            )
+            // Model dropdown — shows all available models from the API
+            var modelExpanded by remember { mutableStateOf(false) }
+            val selectedModel = state.chatModel
 
-            if (state.availableModels.isNotEmpty()) {
-                Text("Available Models:", style = MaterialTheme.typography.labelMedium)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    state.availableModels.take(6).forEach { model ->
-                        FilterChip(
-                            selected = state.chatModel == model,
-                            onClick = { viewModel.updateChatModel(model) },
-                            label = { Text(model.split("/").last(), style = MaterialTheme.typography.labelSmall) }
+            ExposedDropdownMenuBox(
+                expanded = modelExpanded,
+                onExpandedChange = { modelExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = selectedModel,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Chat Model") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                    trailingIcon = {
+                        if (state.isRefreshingModels) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        } else {
+                            Row {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = modelExpanded)
+                                TextButton(onClick = {
+                                    viewModel.refreshModels()
+                                    modelExpanded = false
+                                }) {
+                                    Text("Refresh", color = RoseRed)
+                                }
+                            }
+                        }
+                    },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = modelExpanded,
+                    onDismissRequest = { modelExpanded = false }
+                ) {
+                    if (state.availableModels.isEmpty()) {
+                        DropdownMenuItem(
+                            text = { Text("No models loaded. Tap Refresh.") },
+                            onClick = { modelExpanded = false }
                         )
+                    } else {
+                        state.availableModels.forEach { model ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = model,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = if (model == selectedModel) RoseRed else MaterialTheme.colorScheme.onSurface
+                                    )
+                                },
+                                onClick = {
+                                    viewModel.updateChatModel(model)
+                                    modelExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }

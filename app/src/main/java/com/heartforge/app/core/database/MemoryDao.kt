@@ -17,6 +17,9 @@ interface MemoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMemory(memory: MemoryEntity)
 
+    @Query("UPDATE memories SET content = :content, importance = :importance, category = :category, sentiment = :sentiment WHERE id = :id")
+    suspend fun updateMemory(id: String, content: String, importance: Int, category: com.heartforge.app.core.model.MemoryCategory, sentiment: com.heartforge.app.core.model.Sentiment)
+
     @Query("DELETE FROM memories WHERE id = :id")
     suspend fun deleteMemory(id: String)
 }

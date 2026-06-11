@@ -24,7 +24,8 @@ object DatabaseModule {
             context,
             HeartForgeDatabase::class.java,
             "heartforge.db"
-        ).build()
+        ).fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides

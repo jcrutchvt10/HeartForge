@@ -57,7 +57,8 @@ data class ImageProfile(
     val sleepwearId: String?,
     val vacationId: String?,
     val selfieIds: List<String>,
-    val styleDescription: String
+    val styleDescription: String,
+    val nsfwGallery: List<String>? = emptyList()
 )
 
 data class PromptProfile(

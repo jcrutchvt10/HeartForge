@@ -27,10 +27,10 @@ fun HeartForgeBottomNavigation(navController: NavHostController) {
     val items = listOf(
         BottomNavItem(Destination.Home, "Home", Icons.Default.Home),
         BottomNavItem(Destination.Matches, "Matches", Icons.Default.Favorite),
-        BottomNavItem(Destination.Chat, "Chats", Icons.Default.Chat),
+        BottomNavItem(Destination.ChatList, "Chats", Icons.Default.Chat),
         BottomNavItem(Destination.Gallery, "Gallery", Icons.Default.Image),
         BottomNavItem(Destination.Creator, "Create", Icons.Default.Add),
-        BottomNavItem(Destination.Settings, "Settings", Icons.Default.Settings)
+        BottomNavItem(Destination.ProfileSettings, "Settings", Icons.Default.Settings)
     )
 
     GlassSurface(

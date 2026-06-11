@@ -46,12 +46,12 @@ class HomeViewModel @Inject constructor(
             } ?: emptyList()
 
             val previews = characters.flatMap { character ->
-                listOfNotNull(character.imageProfile.portraitId, character.imageProfile.casualId)
+                listOfNotNull(character.imageProfile.portraitId)
             }.take(8)
 
             _uiState.value = HomeState(
                 activeCharacter = characters.firstOrNull(),
-                recommendedMatches = characters.drop(1).take(4),
+                recommendedMatches = characters.shuffled().take(4),
                 recentMemories = memories,
                 galleryPreviews = previews,
                 isLoading = false

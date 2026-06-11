@@ -19,6 +19,31 @@ class PromptEngine @Inject constructor() {
         recentMessages: List<AIMessage>,
         currentUserMessage: String
     ): List<AIMessage> {
+        // Simple token‑budget handling (approximate by character count).
+        // Keep recent messages up to ~2000 characters and memories up to 5 items.
+        val maxChars = 2000
+        var accumulated = 0
+        val trimmedRecent = recentMessages.reversed().takeWhile { msg ->
+            val len = msg.content.length
+            if (accumulated + len <= maxChars) {
+                accumulated += len
+                true
+            } else false
+        }.reversed()
+        // Limit memories to a reasonable count (already limited to 5 elsewhere) and truncate their content.
+        val trimmedMemories = relevantMemories.take(5).map { mem ->
+            val maxMem = 300
+            if (mem.content.length > maxMem) mem.copy(content = mem.content.take(maxMem) + "…") else mem
+        }
+        // Truncate conversation summary if too long.
+        val trimmedSummary = conversationSummary?.let { if (it.length > 500) it.take(500) + "…" else it }
+        // Use trimmed collections in prompt building.
+        val finalRelevantMemories = trimmedMemories
+        val finalConversationSummary = trimmedSummary
+        // Continue with existing logic using the trimmed variables.
+        // NOTE: The rest of the method will reference `relevantMemories` and `conversationSummary`
+        // which are now shadowed by the trimmed versions above.
+
         val prompt = StringBuilder()
 
         // 1. Global Persona Layer (The "Noir & Intimate" Core)
@@ -43,17 +68,17 @@ class PromptEngine @Inject constructor() {
         prompt.append("\n")
 
         // 4. Memory & History Layer
-        if (relevantMemories.isNotEmpty()) {
+        if (finalRelevantMemories.isNotEmpty()) {
             prompt.append("Shared History & Memories:\n")
-            relevantMemories.take(5).forEach { memory ->
+            finalRelevantMemories.take(5).forEach { memory ->
                 prompt.append("- ${memory.content}\n")
             }
             prompt.append("\n")
         }
 
-        if (!conversationSummary.isNullOrBlank()) {
+        if (!finalConversationSummary.isNullOrBlank()) {
             prompt.append("Current Narrative Arc Summary:\n")
-            prompt.append("$conversationSummary\n\n")
+            prompt.append("$finalConversationSummary\n\n")
         }
 
         prompt.append("Current Instruction: Respond to the user's next message staying perfectly in character as ${character.name}. Keep responses concise but impactful.")

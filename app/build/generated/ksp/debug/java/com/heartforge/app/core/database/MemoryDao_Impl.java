@@ -40,6 +40,8 @@ public final class MemoryDao_Impl implements MemoryDao {
 
   private final Converters __converters = new Converters();
 
+  private final SharedSQLiteStatement __preparedStmtOfUpdateMemory;
+
   private final SharedSQLiteStatement __preparedStmtOfDeleteMemory;
 
   public MemoryDao_Impl(@NonNull final RoomDatabase __db) {
@@ -70,6 +72,14 @@ public final class MemoryDao_Impl implements MemoryDao {
         }
       }
     };
+    this.__preparedStmtOfUpdateMemory = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE memories SET content = ?, importance = ?, category = ?, sentiment = ? WHERE id = ?";
+        return _query;
+      }
+    };
     this.__preparedStmtOfDeleteMemory = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
@@ -94,6 +104,43 @@ public final class MemoryDao_Impl implements MemoryDao {
           return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object updateMemory(final String id, final String content, final int importance,
+      final MemoryCategory category, final Sentiment sentiment,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateMemory.acquire();
+        int _argIndex = 1;
+        _stmt.bindString(_argIndex, content);
+        _argIndex = 2;
+        _stmt.bindLong(_argIndex, importance);
+        _argIndex = 3;
+        final String _tmp = __converters.fromMemoryCategory(category);
+        _stmt.bindString(_argIndex, _tmp);
+        _argIndex = 4;
+        final String _tmp_1 = __converters.fromSentiment(sentiment);
+        _stmt.bindString(_argIndex, _tmp_1);
+        _argIndex = 5;
+        _stmt.bindString(_argIndex, id);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpdateMemory.release(_stmt);
         }
       }
     }, $completion);

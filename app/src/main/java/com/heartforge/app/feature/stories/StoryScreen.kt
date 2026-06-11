@@ -76,8 +76,11 @@ fun StoryScreen(
                         arc = arc,
                         relationshipStats = state.relationship,
                         onChapterClick = { chapter ->
-                            viewModel.startChapter(arc.id, chapter.id)
-                            navController.navigate(com.heartforge.app.navigation.Destination.Chat.createRoute(arc.characterId))
+                            navController.navigate(
+                                com.heartforge.app.navigation.Destination.StoryPlay.createRoute(
+                                    arc.characterId, arc.id, chapter.id
+                                )
+                            )
                         }
                     )
                 }

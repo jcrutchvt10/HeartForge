@@ -109,9 +109,41 @@ class EvolutionaryEngine @Inject constructor(
         userMsg: String,
         aiRes: String
     ) {
-        val deltaAffection = if (aiRes.contains("❤️")) 2 else 1
+        // Heuristic adjustments based on message content signals
+        val lowerRes = aiRes.lowercase()
+        val lowerUser = userMsg.lowercase()
+        
+        val affection = when {
+            "❤️" in aiRes || "love" in lowerRes || "beautiful" in lowerRes -> 3
+            "😘" in aiRes || "kiss" in lowerRes || "miss" in lowerRes -> 2
+            aiRes.length > 200 -> 2  // longer engagement
+            aiRes.length > 100 -> 1
+            else -> 1
+        }
+        val trust = when {
+            "trust" in lowerRes || "safe" in lowerRes || "share" in lowerRes -> 2
+            "joke" in lowerRes || "funny" in lowerRes -> 1
+            else -> 0
+        }
+        val intimacy = when {
+            "touch" in lowerRes || "feel" in lowerRes || "close" in lowerRes -> 2
+            "want" in lowerRes || "need" in lowerRes -> 1
+            else -> 0
+        }
+        val mood = when {
+            affection + intimacy > 3 -> "Affectionate"
+            affection > trust -> "Playful"
+            trust > 0 -> "Comfortable"
+            else -> "Neutral"
+        }
+        
         relationshipRepository.updateRelationship(
-            current.copy(affection = (current.affection + deltaAffection).coerceIn(0, 100))
+            current.copy(
+                affection = (current.affection + affection).coerceIn(0, 100),
+                trust = (current.trust + trust).coerceIn(0, 100),
+                intimacy = (current.intimacy + intimacy).coerceIn(0, 100),
+                mood = mood
+            )
         )
     }
 

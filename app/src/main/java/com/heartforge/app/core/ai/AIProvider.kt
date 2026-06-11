@@ -13,6 +13,13 @@ interface AIProvider {
         prompt: String,
         negativePrompt: String? = null
     ): ImageResult
+
+    suspend fun generateImg2Img(
+        prompt: String,
+        referenceImage: String,
+        strength: Float = 0.6f,
+        negativePrompt: String? = null
+    ): ImageResult
 }
 
 data class AIMessage(

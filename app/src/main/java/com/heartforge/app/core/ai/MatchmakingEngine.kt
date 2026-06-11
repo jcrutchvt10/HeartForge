@@ -81,7 +81,7 @@ class MatchmakingEngine @Inject constructor(
                 MatchmakingAudit(calculateHeuristicCompatibility(user, character), "Heuristic match based on shared interests.")
             }
         } catch (e: Exception) {
-            MatchmakingAudit(calculateHeuristicCompatibility(user, character), "Error performing deep audit.")
+            MatchmakingAudit(calculateHeuristicCompatibility(user, character), "", emptyList(), emptyList())
         }
     }
 

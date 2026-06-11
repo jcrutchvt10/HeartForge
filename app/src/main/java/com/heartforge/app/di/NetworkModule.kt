@@ -1,6 +1,7 @@
 package com.heartforge.app.di
 
 import com.heartforge.app.core.network.nvidia.NVIDIAApiService
+import com.heartforge.app.core.network.nvidia.NVIDIAImageApiService
 import com.heartforge.app.core.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
@@ -23,12 +24,12 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.BASIC
         }
         return OkHttpClient.Builder()
             .addInterceptor(logging)
             .connectTimeout(60, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .build()
     }
@@ -39,15 +40,25 @@ object NetworkModule {
         client: OkHttpClient,
         settingsRepository: SettingsRepository
     ): NVIDIAApiService {
-        // Note: Dynamic Base URL can be handled by an interceptor, 
-        // but for M1 we'll pull from settings initially.
         val baseUrl = runBlocking { settingsRepository.endpoint.first() }
-        
         return Retrofit.Builder()
             .baseUrl(if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(NVIDIAApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNvidiaImageApiService(
+        client: OkHttpClient
+    ): NVIDIAImageApiService {
+        return Retrofit.Builder()
+            .baseUrl("https://ai.api.nvidia.com/")
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(NVIDIAImageApiService::class.java)
     }
 }

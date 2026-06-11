@@ -43,6 +43,9 @@ data class ImageGenerationRequest(
     val steps: Int? = null,
     val cfg_scale: Float? = null,
     val seed: Int? = null,
+    val image: String? = null,
+    val strength: Float? = null,
+    @SerializedName("safety_checker") val safetyChecker: Boolean? = null,
     @SerializedName("response_format") val responseFormat: String = "b64_json"
 )
 

@@ -9,14 +9,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.heartforge.app.feature.chat.ChatScreen
+import com.heartforge.app.feature.chat.ChatListScreen
 import com.heartforge.app.feature.creator.CreatorScreen
 import com.heartforge.app.feature.gallery.GalleryScreen
 import com.heartforge.app.feature.home.HomeScreen
 import com.heartforge.app.feature.matches.MatchScreen
+import com.heartforge.app.feature.profile.ProfileSettingsScreen
 import com.heartforge.app.feature.settings.SettingsScreen
 import com.heartforge.app.feature.matches.CharacterProfileScreen
 import com.heartforge.app.feature.memories.MemoryScreen
 import com.heartforge.app.feature.stories.StoryScreen
+import com.heartforge.app.feature.stories.StoryPlayScreen
 
 @Composable
 fun AppNavigation(
@@ -53,6 +56,10 @@ fun AppNavigation(
             ChatScreen(navController)
         }
 
+        composable(Destination.ChatList.route) {
+            ChatListScreen(navController)
+        }
+
         composable(Destination.Gallery.route) {
             GalleryScreen(navController)
         }
@@ -63,6 +70,10 @@ fun AppNavigation(
 
         composable(Destination.Settings.route) {
             SettingsScreen(navController)
+        }
+
+        composable(Destination.ProfileSettings.route) {
+            ProfileSettingsScreen(navController)
         }
 
         composable(
@@ -79,6 +90,17 @@ fun AppNavigation(
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("characterId") ?: ""
             StoryScreen(characterId = id, navController = navController)
+        }
+
+        composable(
+            route = Destination.StoryPlay.route,
+            arguments = listOf(
+                navArgument("characterId") { type = NavType.StringType },
+                navArgument("arcId") { type = NavType.StringType },
+                navArgument("chapterId") { type = NavType.StringType }
+            )
+        ) {
+            StoryPlayScreen(navController)
         }
 
         composable(

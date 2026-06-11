@@ -2,9 +2,7 @@ package com.heartforge.app.feature.matches
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -32,9 +31,19 @@ import com.heartforge.app.core.model.Character
 import com.heartforge.app.ui.components.GlassSurface
 import com.heartforge.app.ui.components.shimmerEffect
 import com.heartforge.app.ui.theme.LuxeGold
-import com.heartforge.app.ui.theme.NeonGoldBorder
-import com.heartforge.app.ui.theme.White
+import com.heartforge.app.ui.theme.RoseRed
+import com.heartforge.app.ui.theme.TextPrimary
+import com.heartforge.app.ui.theme.TextSecondary
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,25 +74,104 @@ fun MatchScreen(
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (state.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(0.9f).clip(RoundedCornerShape(32.dp)).shimmerEffect())
-            } else if (state.currentProfiles.isEmpty()) {
-                Text("No more matches today!", style = MaterialTheme.typography.titleMedium)
-            } else {
-                val profile = state.currentProfiles.first()
-                MatchCard(
-                    profile = profile,
-                    onLike = { viewModel.onLike(profile) },
-                    onPass = { viewModel.onPass(profile) },
-                    onFavorite = { /* TODO */ }
-                )
+            when {
+                state.isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(32.dp))
+                            .shimmerEffect()
+                    )
+                }
+                state.currentProfiles.isEmpty() -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "No more matches today!",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = RoseRed
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Check back later for new profiles.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary
+                        )
+                    }
+                }
+                else -> {
+                    // Background deck cards (always render underneath for peek effect)
+                    val deck = state.currentProfiles.take(3)
+                    if (deck.size >= 2) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .scale(0.95f)
+                                .offset(y = 8.dp)
+                        ) {
+                            Card(
+                                modifier = Modifier.fillMaxSize(),
+                                shape = RoundedCornerShape(32.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                )
+                            ) {}
+                        }
+                    }
+                    if (deck.size >= 3) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .scale(0.90f)
+                                .offset(y = 16.dp)
+                        ) {
+                            Card(
+                                modifier = Modifier.fillMaxSize(),
+                                shape = RoundedCornerShape(32.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                )
+                            ) {}
+                        }
+                    }
+
+                    // Animated top card — direction-aware (forward=1, backward=-1)
+                    AnimatedContent(
+                        targetState = deck.firstOrNull(),
+                        modifier = Modifier.fillMaxSize(),
+                        transitionSpec = {
+                            val dir = state.swipeDirection
+                            (slideInHorizontally(
+                                animationSpec = tween(350, easing = FastOutSlowInEasing),
+                                initialOffsetX = { dir * it }
+                            ) togetherWith slideOutHorizontally(
+                                animationSpec = tween(350, easing = FastOutSlowInEasing),
+                                targetOffsetX = { -dir * it }
+                            )).using(SizeTransform(clip = false))
+                        },
+                        label = "cardSwipe"
+                    ) { topProfile ->
+                        if (topProfile != null) {
+                            SwipeableMatchCard(
+                                profile = topProfile,
+                                onLike = {
+                                    viewModel.onPass(topProfile)
+                                },
+                                onPass = {
+                                    viewModel.onLike(topProfile)
+                                },
+                                onFavorite = { viewModel.onLike(topProfile) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun MatchCard(
+fun SwipeableMatchCard(
     profile: MatchProfile,
     onLike: () -> Unit,
     onPass: () -> Unit,
@@ -91,53 +179,123 @@ fun MatchCard(
 ) {
     val character = profile.character
     val scope = rememberCoroutineScope()
-    
-    var likeScale by remember { mutableStateOf(1f) }
-    var passScale by remember { mutableStateOf(1f) }
+    val swipeThreshold = 300f
+
+    val offsetX = remember { Animatable(0f) }
+
+    val rotation = { (offsetX.value / 50f).coerceIn(-25f, 25f) }
+    val likeAlpha = { (offsetX.value / swipeThreshold).coerceIn(0f, 1f) }
+    val passAlpha = { (-offsetX.value / swipeThreshold).coerceIn(0f, 1f) }
+
+    suspend fun snapBack() {
+        offsetX.animateTo(0f, animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f))
+    }
 
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 80.dp),
+            .padding(bottom = 80.dp)
+            .graphicsLayer {
+                translationX = offsetX.value
+                rotationZ = rotation()
+            }
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        scope.launch {
+                            if (abs(offsetX.value) > swipeThreshold) {
+                                val liked = offsetX.value > 0
+                                offsetX.snapTo(0f)
+                                if (liked) onLike() else onPass()
+                            } else {
+                                snapBack()
+                            }
+                        }
+                    },
+                    onHorizontalDrag = { _, dragAmount ->
+                        scope.launch {
+                            val newValue = (offsetX.value + dragAmount)
+                                .coerceIn(-1200f, 1200f)
+                            offsetX.snapTo(newValue)
+                        }
+                    }
+                )
+            },
         shape = RoundedCornerShape(32.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
-                model = character.imageProfile.portraitId ?: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop",
+                model = character.imageProfile.portraitId,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
 
+            // Dark gradient overlay at bottom for text readability
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f)),
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f)),
                             startY = 600f
                         )
                     )
             )
 
+            // Like indicator (right swipe)
+            if (likeAlpha() > 0.1f) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(24.dp)
+                        .background(
+                            Color.White.copy(alpha = 0.9f),
+                            RoundedCornerShape(16.dp)
+                        )
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .graphicsLayer { alpha = likeAlpha() }
+                ) {
+                    Text("LIKE", color = RoseRed, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp)
+                }
+            }
+
+            // Pass indicator (left swipe)
+            if (passAlpha() > 0.1f) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(24.dp)
+                        .background(
+                            Color.White.copy(alpha = 0.9f),
+                            RoundedCornerShape(16.dp)
+                        )
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .graphicsLayer { alpha = passAlpha() }
+                ) {
+                    Text("NOPE", color = Color.Red, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp)
+                }
+            }
+
+            // Compatibility score badge
             Surface(
                 modifier = Modifier
                     .padding(20.dp)
-                    .align(Alignment.TopEnd)
-                    .border(1.dp, LuxeGold.copy(alpha = 0.5f), RoundedCornerShape(16.dp)),
+                    .align(Alignment.TopEnd),
                 shape = RoundedCornerShape(16.dp),
-                color = Color.Black.copy(alpha = 0.8f)
+                color = RoseRed.copy(alpha = 0.9f)
             ) {
                 Text(
                     text = "${profile.compatibilityScore}% Match",
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                     style = MaterialTheme.typography.labelLarge,
-                    color = LuxeGold,
-                    fontWeight = FontWeight.ExtraBold
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
+            // Character info at bottom
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -165,40 +323,49 @@ fun MatchCard(
                     modifier = Modifier.padding(top = 4.dp)
                 )
 
-                FlowRow(
-                    modifier = Modifier.padding(top = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val tags = character.personality.traits.take(2) + character.hobbies.take(2)
-                    tags.forEach { tag ->
-                        SuggestionChip(
-                            onClick = { },
-                            label = { Text("✓ $tag", color = Color.White) },
-                            shape = CircleShape,
-                            colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color.White.copy(alpha = 0.15f)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
-                        )
+                // Traits as chips
+                if (character.personality.traits.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        character.personality.traits.take(3).forEach { trait ->
+                            Surface(
+                                shape = CircleShape,
+                                color = Color.White.copy(alpha = 0.15f)
+                            ) {
+                                Text(
+                                    text = trait,
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
                     }
                 }
+            }
 
-                profile.aiAudit?.let { audit ->
-                    Surface(
-                        modifier = Modifier.padding(top = 16.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            text = "✨ ${audit.summary}",
-                            modifier = Modifier.padding(12.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.9f)
-                        )
-                    }
+            // AI Audit snippet
+            profile.aiAudit?.let { audit ->
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 100.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "✨ ${audit.summary}",
+                        modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.9f)
+                    )
                 }
             }
         }
     }
 
+    // Bottom action buttons
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -210,21 +377,21 @@ fun MatchCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FloatingActionButton(
-                onClick = onPass,
+                onClick = { onPass() },
                 containerColor = Color(0xFF1E1E1E),
                 contentColor = Color.Red,
                 shape = CircleShape,
-                modifier = Modifier.size(56.dp).scale(passScale)
+                modifier = Modifier.size(56.dp)
             ) {
                 Icon(Icons.Default.Close, contentDescription = "Pass", modifier = Modifier.size(28.dp))
             }
 
             LargeFloatingActionButton(
-                onClick = onLike,
-                containerColor = MaterialTheme.colorScheme.primary,
+                onClick = { onLike() },
+                containerColor = RoseRed,
                 contentColor = Color.White,
                 shape = CircleShape,
-                modifier = Modifier.scale(likeScale)
+                modifier = Modifier.size(64.dp)
             ) {
                 Icon(Icons.Default.Favorite, contentDescription = "Like", modifier = Modifier.size(36.dp))
             }
@@ -232,27 +399,12 @@ fun MatchCard(
             FloatingActionButton(
                 onClick = onFavorite,
                 containerColor = Color(0xFF1E1E1E),
-                contentColor = Color(0xFFFFD600),
+                contentColor = LuxeGold,
                 shape = CircleShape,
                 modifier = Modifier.size(56.dp)
             ) {
                 Icon(Icons.Default.Star, contentDescription = "Favorite", modifier = Modifier.size(28.dp))
             }
         }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun FlowRow(
-    modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.foundation.layout.FlowRow(
-        modifier = modifier,
-        horizontalArrangement = horizontalArrangement
-    ) {
-        content()
     }
 }

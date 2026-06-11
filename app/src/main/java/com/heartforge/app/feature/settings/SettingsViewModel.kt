@@ -16,6 +16,7 @@ data class SettingsState(
     val imageModel: String = "",
     val temperature: Float = 0.7f,
     val isStreamingEnabled: Boolean = true,
+    val isDarkModeEnabled: Boolean = false,
     val availableModels: List<String> = emptyList(),
     val isRefreshingModels: Boolean = false
 )

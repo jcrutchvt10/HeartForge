@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.util.UUID
@@ -26,7 +27,10 @@ class ChatRepositoryImpl @Inject constructor(
     private val relationshipRepository: RelationshipRepository,
     private val dataInitializer: DataInitializer,
     private val memoryDao: com.heartforge.app.core.database.MemoryDao,
-    private val imageEngine: com.heartforge.app.core.ai.ImageEngine
+    private val imageEngine: com.heartforge.app.core.ai.ImageEngine,
+    private val userProfileRepository: com.heartforge.app.core.repository.UserProfileRepository,
+    private val notificationHelper: com.heartforge.app.core.util.NotificationHelper,
+    private val foregroundState: com.heartforge.app.core.util.AppForegroundState
 ) : ChatRepository {
 
     private val TAG = "ChatRepositoryImpl"
@@ -42,7 +46,7 @@ class ChatRepositoryImpl @Inject constructor(
             Log.e(TAG, "sendMessage failed: Character not found")
             return
         }
-        val userProfile = dataInitializer.getMockUserProfile()
+        val userProfile = userProfileRepository.getProfile()
         val relationship = relationshipRepository.getRelationship(characterId).first() 
             ?: Relationship(characterId, 50, 20, 50, 30, 0, 10, 10, 20, 10)
 
@@ -66,9 +70,17 @@ class ChatRepositoryImpl @Inject constructor(
                         characterId = characterId,
                         role = MessageRole.Assistant,
                         content = "Here's a photo for you! 😉",
-                        imageUrl = imageResult.base64 // This is actually the local path saved by ImageEngine
+                        imageUrl = imageResult.base64
                     )
                     messageDao.insertMessage(photoMessage.toEntity())
+                } else {
+                    val fallbackMsg = ChatMessage(
+                        id = UUID.randomUUID().toString(),
+                        characterId = characterId,
+                        role = MessageRole.Assistant,
+                        content = "I'd love to send you a photo, but my camera's acting up right now. Tell me what you'd like me to describe instead. 😏"
+                    )
+                    messageDao.insertMessage(fallbackMsg.toEntity())
                 }
             }
         }
@@ -90,32 +102,42 @@ class ChatRepositoryImpl @Inject constructor(
             currentUserMessage = content
         )
 
-        // 3. Call AI
-        // For M3, we just get the first result. Streaming UI will be handled in ViewModel.
-        aiProvider.chat(aiPrompt).collect { result ->
-            when (result) {
-                is AIResult.Success -> {
-                    val assistantMessage = ChatMessage(
-                        id = UUID.randomUUID().toString(),
-                        characterId = characterId,
-                        role = MessageRole.Assistant,
-                        content = result.content
-                    )
-                    messageDao.insertMessage(assistantMessage.toEntity())
-                    
-                    // 4. Evolve Relationship
-                    evolutionaryEngine.evolveRelationship(character, content, result.content)
+        // 3. Call AI (on IO dispatcher to avoid blocking Main thread)
+        withContext(Dispatchers.IO) {
+            aiProvider.chat(aiPrompt).collect { result ->
+                when (result) {
+                    is AIResult.Success -> {
+                        val assistantMessage = ChatMessage(
+                            id = UUID.randomUUID().toString(),
+                            characterId = characterId,
+                            role = MessageRole.Assistant,
+                            content = result.content
+                        )
+                        messageDao.insertMessage(assistantMessage.toEntity())
+                        
+                        // Fire local notification if app is in background
+                        if (!foregroundState.isInForeground) {
+                            notificationHelper.showMessageNotification(
+                                characterId = characterId,
+                                characterName = character.name,
+                                preview = result.content.take(120)
+                            )
+                        }
+                        
+                        // 4. Evolve Relationship
+                        evolutionaryEngine.evolveRelationship(character, content, result.content)
+                    }
+                    is AIResult.Error -> {
+                        val errorMessage = ChatMessage(
+                            id = UUID.randomUUID().toString(),
+                            characterId = characterId,
+                            role = MessageRole.System,
+                            content = "Error: ${result.message}"
+                        )
+                        messageDao.insertMessage(errorMessage.toEntity())
+                    }
+                    else -> {}
                 }
-                is AIResult.Error -> {
-                    val errorMessage = ChatMessage(
-                        id = UUID.randomUUID().toString(),
-                        characterId = characterId,
-                        role = MessageRole.System,
-                        content = "Error: ${result.message}"
-                    )
-                    messageDao.insertMessage(errorMessage.toEntity())
-                }
-                else -> {}
             }
         }
     }
@@ -125,8 +147,9 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     private fun isPhotoRequest(content: String): Boolean {
-        val keywords = listOf("photo", "picture", "selfie", "pic", "image", "see you")
-        return keywords.any { content.contains(it, ignoreCase = true) }
+        // Expanded detection using a regex to capture common photo‑related intents.
+        val pattern = Regex("\\b(photo|picture|selfie|image|pic|snapshot|snapshot|snapshot|photograph|show|see)\\b", RegexOption.IGNORE_CASE)
+        return pattern.containsMatchIn(content)
     }
 
     private fun determineScene(content: String): com.heartforge.app.core.ai.SceneType {

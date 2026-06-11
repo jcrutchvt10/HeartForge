@@ -4,17 +4,40 @@ import android.util.Log
 import com.heartforge.app.core.ai.*
 import com.heartforge.app.core.network.nvidia.*
 import com.heartforge.app.core.repository.SettingsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class NVIDIAProvider @Inject constructor(
     private val apiService: NVIDIAApiService,
+    private val imageApiService: NVIDIAImageApiService,
     private val settingsRepository: SettingsRepository
 ) : AIProvider {
 
     private val TAG = "NVIDIAProvider"
+
+    private suspend fun <T> retryCall(
+        attempts: Int = 3,
+        block: suspend () -> retrofit2.Response<T>
+    ): retrofit2.Response<T> {
+        var lastError: Exception? = null
+        repeat(attempts) { attempt ->
+            try {
+                val resp = block()
+                if (resp.isSuccessful) return resp
+                Log.w(TAG, "Attempt ${attempt + 1} failed with code ${resp.code()}")
+            } catch (e: Exception) {
+                lastError = e
+                Log.w(TAG, "Attempt ${attempt + 1} threw exception: ${e.message}")
+            }
+            kotlinx.coroutines.delay(500L * (attempt + 1))
+        }
+        throw lastError ?: IllegalStateException("Request failed after $attempts attempts")
+    }
 
     override suspend fun chat(
         messages: List<AIMessage>,
@@ -44,7 +67,7 @@ class NVIDIAProvider @Inject constructor(
 
         try {
             if (stream) {
-                val response = apiService.createChatCompletionStream("Bearer $apiKey", request)
+                val response = retryCall { apiService.createChatCompletionStream("Bearer $apiKey", request) }
                 if (response.isSuccessful) {
                     val reader = response.body()?.charStream()?.buffered()
                     var fullContent = ""
@@ -70,7 +93,7 @@ class NVIDIAProvider @Inject constructor(
                     emit(AIResult.Error("API Error: ${response.code()}"))
                 }
             } else {
-                val response = apiService.createChatCompletion("Bearer $apiKey", request)
+                val response = retryCall { apiService.createChatCompletion("Bearer $apiKey", request) }
                 if (response.isSuccessful) {
                     val content = response.body()?.choices?.firstOrNull()?.message?.content ?: ""
                     Log.d(TAG, "Chat success. Received content length: ${content.length}")
@@ -92,24 +115,80 @@ class NVIDIAProvider @Inject constructor(
         negativePrompt: String?
     ): ImageResult {
         val apiKey = settingsRepository.getApiKey() ?: return ImageResult.Error("API Key not configured")
-        val imageModel = runCatching { settingsRepository.imageModel.first() }.getOrDefault("black-forest-labs/flux-1-dev")
-
-        val request = ImageGenerationRequest(
-            model = imageModel,
+        
+        // Use FLUX.1-dev with base mode (txt2img)
+        val request = FluxImageRequest(
             prompt = prompt,
-            negative_prompt = negativePrompt
+            mode = "base",
+            cfg_scale = 5,
+            steps = 25  // FLUX.1-dev default steps
         )
 
         return try {
-            val response = apiService.generateImage("Bearer $apiKey", request)
+            val response = imageApiService.generateFluxDev("Bearer $apiKey", request)
             if (response.isSuccessful) {
-                val base64 = response.body()?.data?.firstOrNull()?.b64_json
-                if (base64 != null) ImageResult.Success(base64) else ImageResult.Error("No image generated")
+                val artifact = response.body()?.artifacts?.firstOrNull()
+                val b64 = artifact?.base64
+                val fr = artifact?.finishReason
+                if (b64 != null && fr != "CONTENT_FILTERED") {
+                    ImageResult.Success(b64)
+                } else if (fr == "CONTENT_FILTERED") {
+                    ImageResult.Error("Content filtered by NSFW safety checker")
+                } else {
+                    ImageResult.Error("No image generated")
+                }
             } else {
-                ImageResult.Error("API Error: ${response.code()}")
+                val err = response.errorBody()?.string()
+                ImageResult.Error("FLUX.1-dev: ${response.code()} - ${err?.take(200)}")
             }
         } catch (e: Exception) {
-            ImageResult.Error("Network Error: ${e.message}")
+            ImageResult.Error("FLUX.1-dev failed: ${e.message}")
+        }
+    }
+
+    override suspend fun generateImg2Img(
+        prompt: String,
+        referenceImage: String,
+        strength: Float,
+        negativePrompt: String?
+    ): ImageResult {
+        val apiKey = settingsRepository.getApiKey() ?: return ImageResult.Error("API Key not configured")
+
+        Log.d(TAG, "Attempting img2img with FLUX.1-dev depth mode, reference image length: ${referenceImage.length}")
+
+        // Use FLUX.1-dev with depth mode directly - reference image is passed as base64 in the image field
+        val request = FluxImageRequest(
+            prompt = prompt,
+            mode = "depth",
+            cfg_scale = 5,
+            steps = 30,
+            image = referenceImage  // Pass base64 directly, no asset upload needed
+        )
+
+        try {
+            val response = imageApiService.generateFluxDev("Bearer $apiKey", request)
+            if (response.isSuccessful) {
+                val artifact = response.body()?.artifacts?.firstOrNull()
+                val b64 = artifact?.base64
+                val fr = artifact?.finishReason
+                if (b64 != null && fr != "CONTENT_FILTERED") {
+                    Log.d(TAG, "img2img SUCCESS with FLUX.1-dev depth, generated ${b64.length} chars")
+                    return ImageResult.Success(b64)
+                } else if (fr == "CONTENT_FILTERED") {
+                    Log.w(TAG, "img2img: Content filtered by NSFW safety checker")
+                    return ImageResult.Error("Content filtered by NSFW safety checker")
+                } else {
+                    Log.w(TAG, "img2img: No image generated, finishReason=$fr")
+                    return ImageResult.Error("No image generated")
+                }
+            } else {
+                val err = response.errorBody()?.string()
+                Log.e(TAG, "img2img: FLUX.1-dev depth failed: ${response.code()} - ${err?.take(200)}")
+                return ImageResult.Error("FLUX.1-dev depth: ${response.code()} - ${err?.take(200)}")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "img2img: FLUX.1-dev depth failed: ${e.message}")
+            return ImageResult.Error("FLUX.1-dev depth failed: ${e.message}")
         }
     }
 }

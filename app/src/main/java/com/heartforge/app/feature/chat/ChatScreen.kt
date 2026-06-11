@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -119,7 +120,12 @@ fun ChatScreen(
                     visible = true,
                     enter = slideInVertically(initialOffsetY = { 50 }) + fadeIn()
                 ) {
-                    ChatBubble(message)
+                    ChatBubble(
+                        message = message,
+                        onRetry = if (message.role == MessageRole.System) {
+                            { viewModel.retryLastMessage() }
+                        } else null
+                    )
                 }
             }
             if (state.isAssistantTyping) {
@@ -132,10 +138,15 @@ fun ChatScreen(
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(message: ChatMessage, onRetry: (() -> Unit)? = null) {
     val isUser = message.role == MessageRole.User
+    val isError = message.role == MessageRole.System
     val alignment = if (isUser) Alignment.End else Alignment.Start
-    val borderColor = if (isUser) NeonRoseBorder else NeonGoldBorder
+    val borderColor = when {
+        isError -> Color.Red.copy(alpha = 0.6f)
+        isUser -> NeonRoseBorder
+        else -> NeonGoldBorder
+    }
     val shape = if (isUser) {
         RoundedCornerShape(24.dp, 24.dp, 4.dp, 24.dp)
     } else {
@@ -166,9 +177,15 @@ fun ChatBubble(message: ChatMessage) {
                     Text(
                         text = message.content,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = White,
+                        color = if (isError) Color.Red.copy(alpha = 0.8f) else White,
                         lineHeight = 24.sp
                     )
+                }
+                if (isError && onRetry != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = onRetry) {
+                        Text("Tap to retry", color = RoseRed, style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             }
         }
@@ -252,22 +269,47 @@ fun RelationshipMeterMini(trust: Int, romance: Int) {
 
 @Composable
 fun TypingIndicator(name: String) {
-    val infiniteTransition = rememberInfiniteTransition(label = "typing")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
+    val infiniteTransition = rememberInfiniteTransition(label = "bounce")
 
-    Row(modifier = Modifier.padding(start = 12.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            "$name is typing...",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha)
+    // Three dots with staggered bounce animations
+    val delays = listOf(0, 200, 400)
+    val bounces = delays.map { delay ->
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = -12f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 600, delayMillis = delay, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "bounce_$delay"
         )
+    }
+
+    Row(
+        modifier = Modifier
+            .padding(start = 12.dp, top = 8.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        // Glassmorphic bubble container
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                bounces.forEach { bounce ->
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .graphicsLayer { translationY = bounce.value }
+                            .background(RoseRed, CircleShape)
+                    )
+                }
+            }
+        }
     }
 }

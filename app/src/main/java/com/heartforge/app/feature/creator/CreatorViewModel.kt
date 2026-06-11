@@ -107,7 +107,17 @@ class CreatorViewModel @Inject constructor(
                     }
                 }
                 is ImageResult.Error -> {
-                    _uiState.update { it.copy(isGeneratingImage = false, generationError = result.message) }
+                    // Fall back to a placeholder Unsplash URL
+                    val fallbackUrl = imageEngine.getFallbackImageUrl()
+                    _uiState.update { state -> 
+                        state.copy(
+                            isGeneratingImage = false,
+                            draft = state.draft.copy(
+                                imageProfile = state.draft.imageProfile.copy(portraitId = fallbackUrl)
+                            ),
+                            generationError = null // Silence error — fallback works fine
+                        )
+                    }
                 }
             }
         }

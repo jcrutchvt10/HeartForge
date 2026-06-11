@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import com.heartforge.app.BuildConfig
 import com.heartforge.app.core.util.SecureSettings
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -19,7 +18,13 @@ class SettingsRepositoryImpl @Inject constructor(
     private val secureSettings: SecureSettings
 ) : SettingsRepository {
 
-    private val _apiKeyFlow = MutableStateFlow(secureSettings.getApiKey() ?: BuildConfig.NVIDIA_API_KEY)
+    private val _apiKeyFlow = MutableStateFlow(
+        secureSettings.getApiKey() ?: run {
+            val defaultKey = DefaultApiKey
+            if (defaultKey.isNotBlank()) secureSettings.saveApiKey(defaultKey)
+            defaultKey
+        }
+    )
     override val apiKey: Flow<String> = _apiKeyFlow.asStateFlow()
 
     override val endpoint: Flow<String> = context.dataStore.data.map { preferences ->
@@ -47,6 +52,14 @@ class SettingsRepositoryImpl @Inject constructor(
         preferences[KEY_STREAMING] ?: true
     }
 
+    override val isDarkModeEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[KEY_DARK_MODE] ?: false
+    }
+
+    override val favoriteCharacterIds: Flow<Set<String>> = context.dataStore.data.map { preferences ->
+        preferences[KEY_FAVORITES] ?: emptySet()
+    }
+
     override suspend fun updateEndpoint(url: String) {
         context.dataStore.edit { it[KEY_ENDPOINT] = url }
     }
@@ -67,20 +80,43 @@ class SettingsRepositoryImpl @Inject constructor(
         context.dataStore.edit { it[KEY_STREAMING] = enabled }
     }
 
+    override suspend fun updateDarkMode(enabled: Boolean) {
+        context.dataStore.edit { it[KEY_DARK_MODE] = enabled }
+    }
+
+    override suspend fun addFavorite(id: String) {
+        context.dataStore.edit { prefs ->
+            val set = prefs[KEY_FAVORITES]?.toMutableSet() ?: mutableSetOf()
+            set.add(id)
+            prefs[KEY_FAVORITES] = set
+        }
+    }
+
+    override suspend fun removeFavorite(id: String) {
+        context.dataStore.edit { prefs ->
+            val set = prefs[KEY_FAVORITES]?.toMutableSet() ?: mutableSetOf()
+            set.remove(id)
+            prefs[KEY_FAVORITES] = set
+        }
+    }
+
     override suspend fun saveApiKey(key: String) {
         secureSettings.saveApiKey(key)
         _apiKeyFlow.value = key
     }
 
     override suspend fun getApiKey(): String? {
-        return secureSettings.getApiKey() ?: BuildConfig.NVIDIA_API_KEY.takeIf { it.isNotBlank() }
+        return secureSettings.getApiKey() ?: DefaultApiKey.takeIf { it.isNotBlank() }
     }
 
     companion object {
+        private const val DefaultApiKey = "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"
         private val KEY_ENDPOINT = stringPreferencesKey("endpoint")
         private val KEY_CHAT_MODEL = stringPreferencesKey("chat_model")
         private val KEY_IMAGE_MODEL = stringPreferencesKey("image_model")
         private val KEY_TEMPERATURE = floatPreferencesKey("temperature")
         private val KEY_STREAMING = booleanPreferencesKey("streaming")
+        private val KEY_DARK_MODE = booleanPreferencesKey("dark_mode")
+        private val KEY_FAVORITES = stringSetPreferencesKey("favorites")
     }
 }

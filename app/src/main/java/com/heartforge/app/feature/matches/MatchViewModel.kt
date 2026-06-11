@@ -13,6 +13,8 @@ import javax.inject.Inject
 
 data class MatchState(
     val currentProfiles: List<MatchProfile> = emptyList(),
+    val history: List<MatchProfile> = emptyList(),
+    val swipeDirection: Int = 1,
     val isLoading: Boolean = true
 )
 
@@ -26,7 +28,8 @@ data class MatchProfile(
 class MatchViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val matchmakingEngine: MatchmakingEngine,
-    private val dataInitializer: DataInitializer
+    private val dataInitializer: DataInitializer,
+    private val userProfileRepository: com.heartforge.app.core.repository.UserProfileRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MatchState())
@@ -39,7 +42,7 @@ class MatchViewModel @Inject constructor(
     private fun loadProfiles() {
         viewModelScope.launch {
             val characters = characterRepository.getCharacters()
-            val user = dataInitializer.getMockUserProfile()
+            val user = userProfileRepository.getProfile()
             
             // Refined heuristic match for initial stack
             val profiles = characters.map { 
@@ -58,8 +61,11 @@ class MatchViewModel @Inject constructor(
 
     private fun performAiAudit(profile: MatchProfile) {
         viewModelScope.launch {
-            val user = dataInitializer.getMockUserProfile()
+            val user = userProfileRepository.getProfile()
             val audit = matchmakingEngine.calculateAIDrivenCompatibility(user, profile.character)
+            
+            // Only update if audit has actual content (skip silent fallback audits)
+            if (audit.summary.isBlank()) return@launch
             
             _uiState.update { state ->
                 val updatedProfiles = state.currentProfiles.map { p ->
@@ -73,16 +79,25 @@ class MatchViewModel @Inject constructor(
     }
 
     fun onLike(profile: MatchProfile) {
-        // Logic for liking
-        removeProfile(profile)
+        _uiState.update {
+            it.copy(
+                currentProfiles = it.currentProfiles.filter { p -> p != profile },
+                history = it.history + profile,
+                swipeDirection = 1
+            )
+        }
     }
 
     fun onPass(profile: MatchProfile) {
-        // Logic for passing
-        removeProfile(profile)
-    }
-
-    private fun removeProfile(profile: MatchProfile) {
-        _uiState.update { it.copy(currentProfiles = it.currentProfiles.filter { p -> p != profile }) }
+        val historyProfile = _uiState.value.history.lastOrNull()
+        if (historyProfile != null) {
+            _uiState.update {
+                it.copy(
+                    currentProfiles = listOf(historyProfile) + it.currentProfiles,
+                    history = it.history.dropLast(1),
+                    swipeDirection = -1
+                )
+            }
+        }
     }
 }

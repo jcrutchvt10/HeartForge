@@ -20,6 +20,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindUserProfileRepository(
+        userProfileRepositoryImpl: com.heartforge.app.core.repository.UserProfileRepositoryImpl
+    ): com.heartforge.app.core.repository.UserProfileRepository
+
+    @Binds
+    @Singleton
     abstract fun bindAIProvider(
         nvidiaProvider: com.heartforge.app.core.ai.nvidia.NVIDIAProvider
     ): com.heartforge.app.core.ai.AIProvider

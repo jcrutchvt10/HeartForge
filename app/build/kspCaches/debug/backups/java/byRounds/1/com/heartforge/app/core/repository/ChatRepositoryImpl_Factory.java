@@ -6,7 +6,9 @@ import com.heartforge.app.core.ai.ImageEngine;
 import com.heartforge.app.core.ai.PromptEngine;
 import com.heartforge.app.core.database.MemoryDao;
 import com.heartforge.app.core.database.MessageDao;
+import com.heartforge.app.core.util.AppForegroundState;
 import com.heartforge.app.core.util.DataInitializer;
+import com.heartforge.app.core.util.NotificationHelper;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -48,13 +50,22 @@ public final class ChatRepositoryImpl_Factory implements Factory<ChatRepositoryI
 
   private final Provider<ImageEngine> imageEngineProvider;
 
+  private final Provider<UserProfileRepository> userProfileRepositoryProvider;
+
+  private final Provider<NotificationHelper> notificationHelperProvider;
+
+  private final Provider<AppForegroundState> foregroundStateProvider;
+
   public ChatRepositoryImpl_Factory(Provider<MessageDao> messageDaoProvider,
       Provider<AIProvider> aiProvider, Provider<PromptEngine> promptEngineProvider,
       Provider<EvolutionaryEngine> evolutionaryEngineProvider,
       Provider<CharacterRepository> characterRepositoryProvider,
       Provider<RelationshipRepository> relationshipRepositoryProvider,
       Provider<DataInitializer> dataInitializerProvider, Provider<MemoryDao> memoryDaoProvider,
-      Provider<ImageEngine> imageEngineProvider) {
+      Provider<ImageEngine> imageEngineProvider,
+      Provider<UserProfileRepository> userProfileRepositoryProvider,
+      Provider<NotificationHelper> notificationHelperProvider,
+      Provider<AppForegroundState> foregroundStateProvider) {
     this.messageDaoProvider = messageDaoProvider;
     this.aiProvider = aiProvider;
     this.promptEngineProvider = promptEngineProvider;
@@ -64,11 +75,14 @@ public final class ChatRepositoryImpl_Factory implements Factory<ChatRepositoryI
     this.dataInitializerProvider = dataInitializerProvider;
     this.memoryDaoProvider = memoryDaoProvider;
     this.imageEngineProvider = imageEngineProvider;
+    this.userProfileRepositoryProvider = userProfileRepositoryProvider;
+    this.notificationHelperProvider = notificationHelperProvider;
+    this.foregroundStateProvider = foregroundStateProvider;
   }
 
   @Override
   public ChatRepositoryImpl get() {
-    return newInstance(messageDaoProvider.get(), aiProvider.get(), promptEngineProvider.get(), evolutionaryEngineProvider.get(), characterRepositoryProvider.get(), relationshipRepositoryProvider.get(), dataInitializerProvider.get(), memoryDaoProvider.get(), imageEngineProvider.get());
+    return newInstance(messageDaoProvider.get(), aiProvider.get(), promptEngineProvider.get(), evolutionaryEngineProvider.get(), characterRepositoryProvider.get(), relationshipRepositoryProvider.get(), dataInitializerProvider.get(), memoryDaoProvider.get(), imageEngineProvider.get(), userProfileRepositoryProvider.get(), notificationHelperProvider.get(), foregroundStateProvider.get());
   }
 
   public static ChatRepositoryImpl_Factory create(Provider<MessageDao> messageDaoProvider,
@@ -77,14 +91,19 @@ public final class ChatRepositoryImpl_Factory implements Factory<ChatRepositoryI
       Provider<CharacterRepository> characterRepositoryProvider,
       Provider<RelationshipRepository> relationshipRepositoryProvider,
       Provider<DataInitializer> dataInitializerProvider, Provider<MemoryDao> memoryDaoProvider,
-      Provider<ImageEngine> imageEngineProvider) {
-    return new ChatRepositoryImpl_Factory(messageDaoProvider, aiProvider, promptEngineProvider, evolutionaryEngineProvider, characterRepositoryProvider, relationshipRepositoryProvider, dataInitializerProvider, memoryDaoProvider, imageEngineProvider);
+      Provider<ImageEngine> imageEngineProvider,
+      Provider<UserProfileRepository> userProfileRepositoryProvider,
+      Provider<NotificationHelper> notificationHelperProvider,
+      Provider<AppForegroundState> foregroundStateProvider) {
+    return new ChatRepositoryImpl_Factory(messageDaoProvider, aiProvider, promptEngineProvider, evolutionaryEngineProvider, characterRepositoryProvider, relationshipRepositoryProvider, dataInitializerProvider, memoryDaoProvider, imageEngineProvider, userProfileRepositoryProvider, notificationHelperProvider, foregroundStateProvider);
   }
 
   public static ChatRepositoryImpl newInstance(MessageDao messageDao, AIProvider aiProvider,
       PromptEngine promptEngine, EvolutionaryEngine evolutionaryEngine,
       CharacterRepository characterRepository, RelationshipRepository relationshipRepository,
-      DataInitializer dataInitializer, MemoryDao memoryDao, ImageEngine imageEngine) {
-    return new ChatRepositoryImpl(messageDao, aiProvider, promptEngine, evolutionaryEngine, characterRepository, relationshipRepository, dataInitializer, memoryDao, imageEngine);
+      DataInitializer dataInitializer, MemoryDao memoryDao, ImageEngine imageEngine,
+      UserProfileRepository userProfileRepository, NotificationHelper notificationHelper,
+      AppForegroundState foregroundState) {
+    return new ChatRepositoryImpl(messageDao, aiProvider, promptEngine, evolutionaryEngine, characterRepository, relationshipRepository, dataInitializer, memoryDao, imageEngine, userProfileRepository, notificationHelper, foregroundState);
   }
 }

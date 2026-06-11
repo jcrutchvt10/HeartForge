@@ -10,5 +10,5 @@ public final class BuildConfig {
   public static final int VERSION_CODE = 1;
   public static final String VERSION_NAME = "1.0";
   // Field from default config.
-  public static final String NVIDIA_API_KEY = "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";
+  public static final String NVIDIA_API_KEY = "";
 }

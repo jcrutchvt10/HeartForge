@@ -12,8 +12,59 @@ class DataInitializer @Inject constructor(
 ) {
     private val TAG = "DataInitializer"
 
+    // All verified working Unsplash photo IDs — young Caucasian males, edgy/attractive
+    // portrait: face-focused crop at 800x1000
+    // casual: entropy crop at 600x900 (different look from same photo)
+    private data class PhotoPair(val portrait: String, val casual: String)
+
+    private val photos = listOf(
+        // 1 Kai - Artist, edgy creative vibe
+        PhotoPair("1480455624313-e29b44bbfde1", "1598547461182-45d03f6661e4"),
+        // 2 Ethan - Trainer, gym/athletic
+        PhotoPair("1672866332205-9246ee75ca14", "1658836516479-b986ea8fede7"),
+        // 3 Lucas - Cybersecurity, dark/mysterious
+        PhotoPair("1669309935770-f9eb944c6fd6", "1561688961-7588856fe6ee"),
+        // 4 Xavier - Architect, sophisticated
+        PhotoPair("1621604475041-812d09875f97", "1698099402140-74eb1b9124c0"),
+        // 5 Jaxon - Musician, edgy leather/tattoo vibe
+        PhotoPair("1754475205146-23ca0cd6e73f", "1621788455015-e48161cb187b"),
+        // 6 Dante - Fixer, dark intense
+        PhotoPair("1732464517819-de751bdb827c", "1668531282396-96bea4cacab5"),
+        // 7 Malakai - Cagefighter, shirtless/beard
+        PhotoPair("1643904524951-2a3a58856745", "1580491934424-f4d543ccbf05"),
+        // 8 Soren - Pilot, clean-cut adventurer
+        PhotoPair("1597081128759-1677c801fb5d", "1630245768301-10ffef15d991"),
+        // 9 Killian - Hedge Fund, suit/business
+        PhotoPair("1732464517792-7385024242a6", "1625000029054-91eecf26b058"),
+        // 10 Finn - Surfer, beach/outdoor
+        PhotoPair("1699901853284-441196a72393", "1589481158910-542b444d90b1"),
+        // 11 Roman - Mercenary, tactical intense
+        PhotoPair("1615773179144-37b11a532766", "1768742466928-7eb18e2fcb6c"),
+        // 12 Caleb - Professor, intellectual clean-cut
+        PhotoPair("1656005947222-206f8d571974", "1656005947213-830f20b877b8"),
+        // 13 Sebastian - Chef, sensual/artsy
+        PhotoPair("1441786485319-5e0f0c092803", "1615933550260-713e21e5f80a"),
+        // 14 Ezra - Photographer, artistic soulful
+        PhotoPair("1608680674308-0563a7693047", "1617726341472-ffff3dd33ee0"),
+        // 15 Gideon - Blacksmith, rugged beard
+        PhotoPair("1656587131315-2c0196fefe5b", "1644718847139-763378382fa2"),
+        // 16 Leo - Dancer, body/physique
+        PhotoPair("1562038969-e85c13ecb2ac", "1621715562134-0c52ca9b2621"),
+        // 17 Asher - Surgeon, precise clean
+        PhotoPair("1450133064473-71024230f91b", "1625000022463-bc1f305e1a8d"),
+        // 18 Rhys - War Correspondent, rugged serious
+        PhotoPair("1499051284390-7dbd87e5fbdb", "1622194548728-318805e1a7b3"),
+        // 19 Silas - Tattoo Artist, edgy ink
+        PhotoPair("1557840915-9bee5de8118d", "1610312856669-2cee66b2949c"),
+        // 20 Bastian - Speakeasy Owner, sophisticated older
+        PhotoPair("1621788455577-5b822d804c53", "1626724419913-ac60f768c20f"),
+    )
+
+    private fun photoUrl(id: String, w: Int, h: Int, crop: String) =
+        "https://images.unsplash.com/photo-$id?q=80&w=$w&h=$h&fit=crop&crop=$crop"
+
     suspend fun populateSampleData() {
-        android.util.Log.d(TAG, "Populating sample data (Refined Edgy Roster v10 - Verified Photos & Gallery)...")
+        android.util.Log.d(TAG, "Populating sample data (Grindr-style roster - unique verified photos)...")
         characterDao.deleteAll()
         val samples = listOf(
             createCharacter(
@@ -24,8 +75,7 @@ class DataInitializer @Inject constructor(
                 "Aggressively flirtatious and artistic",
                 listOf("Painting", "Night walks", "Vinyl", "Body Art"),
                 listOf("Mediocrity", "Interruptions", "Modesty"),
-                "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1000&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1514332921281-1bfbfb58a7ec?q=80&w=1000&auto=format&fit=crop"
+                photos[0]
             ),
             createCharacter(
                 "2", "Ethan", 24, "Elite Trainer", 
@@ -35,8 +85,7 @@ class DataInitializer @Inject constructor(
                 "Teasingly dominant and physical",
                 listOf("Boxing", "Sunsets", "Protein", "Power Play"),
                 listOf("Weakness", "Lies", "Limits"),
-                "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1501196351401-78bfc8f2c380?q=80&w=1000&auto=format&fit=crop"
+                photos[1]
             ),
             createCharacter(
                 "3", "Lucas", 23, "Cybersecurity Expert", 
@@ -46,8 +95,7 @@ class DataInitializer @Inject constructor(
                 "Quietly intense and possessive",
                 listOf("AI", "Stargazing", "Coffee", "Dark Web"),
                 listOf("Shallow talk", "Chaos", "Authority"),
-                "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1000&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1590038767624-9a51bb3d87f7?q=80&w=1000&auto=format&fit=crop"
+                photos[2]
             ),
             createCharacter(
                 "4", "Xavier", 29, "Modern Architect", 
@@ -57,8 +105,7 @@ class DataInitializer @Inject constructor(
                 "Elegant and controlling",
                 listOf("Jazz", "Design", "Wine", "BDSM"),
                 listOf("Clutter", "Disrespect", "Incompetence"),
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=1000&auto=format&fit=crop"
+                photos[3]
             ),
             createCharacter(
                 "5", "Jaxon", 25, "Underground Musician", 
@@ -68,8 +115,7 @@ class DataInitializer @Inject constructor(
                 "Magnetic, raw, and uninhibited",
                 listOf("Guitars", "Leather", "Whiskey", "Tattoos"),
                 listOf("Silence", "Boredom", "Rules"),
-                "https://images.unsplash.com/photo-1503443207922-dff7d543fd0e?q=80&w=1000&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1552374195-24264630d663?q=80&w=1000&auto=format&fit=crop"
+                photos[4]
             ),
             createCharacter(
                 "6", "Dante", 32, "Fixer",
@@ -79,7 +125,7 @@ class DataInitializer @Inject constructor(
                 "Dark, controlling, and deeply devoted",
                 listOf("Power", "Luxury", "Italian cars", "Control"),
                 listOf("Betrayal", "Weakness", "Disobedience"),
-                "https://images.unsplash.com/photo-1519085185753-b623fc56e939?q=80&w=1000&auto=format&fit=crop"
+                photos[5]
             ),
             createCharacter(
                 "7", "Malakai", 27, "Cage Fighter",
@@ -89,7 +135,7 @@ class DataInitializer @Inject constructor(
                 "Direct, raw, and physically demanding",
                 listOf("MMA", "Night sky", "Steak", "Adrenaline"),
                 listOf("Arrogance", "Fake smiles", "Distance"),
-                "https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1000&auto=format&fit=crop"
+                photos[6]
             ),
             createCharacter(
                 "8", "Soren", 28, "Combat Pilot",
@@ -99,7 +145,7 @@ class DataInitializer @Inject constructor(
                 "Charming, daring, and sexually adventurous",
                 listOf("Aviation", "Sunsets", "New York", "Speed"),
                 listOf("Routine", "Fear", "Boring talk"),
-                "https://images.unsplash.com/photo-1514332921281-1bfbfb58a7ec?q=80&w=1000&auto=format&fit=crop"
+                photos[7]
             ),
             createCharacter(
                 "9", "Killian", 31, "Hedge Fund Raider",
@@ -109,7 +155,7 @@ class DataInitializer @Inject constructor(
                 "Strict, rewarding, and highly demanding",
                 listOf("Suits", "Power", "Sailing", "High Stakes"),
                 listOf("Laziness", "Excuses", "Mediocrity"),
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"
+                photos[8]
             ),
             createCharacter(
                 "10", "Finn", 25, "Big Wave Surfer",
@@ -119,7 +165,7 @@ class DataInitializer @Inject constructor(
                 "Teasing, sun-kissed, and adventurous",
                 listOf("Ocean", "Beach bonfires", "Tattoos", "Camping"),
                 listOf("Stress", "Cities", "Clothes"),
-                "https://images.unsplash.com/photo-1544717305-b825832a8933?q=80&w=1000&auto=format&fit=crop"
+                photos[9]
             ),
             createCharacter(
                 "11", "Roman", 29, "Mercenary",
@@ -129,7 +175,7 @@ class DataInitializer @Inject constructor(
                 "Protective, intense, and primal",
                 listOf("Tactical gear", "Night vision", "Gym", "Survival"),
                 listOf("Intrusions", "Noise", "Questions"),
-                "https://images.unsplash.com/photo-1590038767624-9a51bb3d87f7?q=80&w=1000&auto=format&fit=crop"
+                photos[10]
             ),
             createCharacter(
                 "12", "Caleb", 26, "Ethics Professor",
@@ -139,7 +185,7 @@ class DataInitializer @Inject constructor(
                 "Subtle, intellectual, and wickedly seductive",
                 listOf("Books", "Rain", "Old paper", "Forbidden Desires"),
                 listOf("Loudness", "Ignorance", "Simple minds"),
-                "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop"
+                photos[11]
             ),
             createCharacter(
                 "13", "Sebastian", 27, "Michelin Chef",
@@ -149,7 +195,7 @@ class DataInitializer @Inject constructor(
                 "Commanding, flavorful, and deeply sensual",
                 listOf("Fine dining", "Travel", "Dark chocolate", "Sensory Play"),
                 listOf("Bad taste", "Cold food", "Inhibitions"),
-                "https://images.unsplash.com/photo-1595152203893-d71b3b1945d3?q=80&w=1000&auto=format&fit=crop"
+                photos[12]
             ),
             createCharacter(
                 "14", "Ezra", 24, "Boudoir Photographer",
@@ -159,7 +205,7 @@ class DataInitializer @Inject constructor(
                 "Soulful, enticing, and observant",
                 listOf("Lens", "Light", "Human form", "Shadows"),
                 listOf("Posers", "Bright lights", "Modesty"),
-                "https://images.unsplash.com/photo-1599566152013-5079a2a5a25b?q=80&w=1000&auto=format&fit=crop"
+                photos[13]
             ),
             createCharacter(
                 "15", "Gideon", 30, "Blacksmith",
@@ -169,7 +215,7 @@ class DataInitializer @Inject constructor(
                 "Masculine, steady, and physically overwhelming",
                 listOf("Forge", "Nature", "Quiet", "Heavy Metal"),
                 listOf("Modernity", "Flimsy things", "Weakness"),
-                "https://images.unsplash.com/photo-1586716530397-3201c0ae31b2?q=80&w=1000&auto=format&fit=crop"
+                photos[14]
             ),
             createCharacter(
                 "16", "Leo", 25, "Lead Dancer",
@@ -179,7 +225,7 @@ class DataInitializer @Inject constructor(
                 "High energy, teasing, and physically expressive",
                 listOf("Music", "City lights", "Sneakers", "Sweat"),
                 listOf("Standing still", "Silence", "Limits"),
-                "https://images.unsplash.com/photo-1570213829047-38605202828b?q=80&w=1000&auto=format&fit=crop"
+                photos[15]
             ),
             createCharacter(
                 "17", "Asher", 28, "Trauma Surgeon",
@@ -189,7 +235,7 @@ class DataInitializer @Inject constructor(
                 "Professional yet provocatively intense",
                 listOf("Classical music", "Wine", "Running", "Anatomy"),
                 listOf("Neglect", "Chaos", "Disobedience"),
-                "https://images.unsplash.com/photo-1584040330311-6972123d8c14?q=80&w=1000&auto=format&fit=crop"
+                photos[16]
             ),
             createCharacter(
                 "18", "Rhys", 29, "War Correspondent",
@@ -199,7 +245,7 @@ class DataInitializer @Inject constructor(
                 "Engaging, challenging, and passionately curious",
                 listOf("Coffee", "Typewriters", "Truth", "Danger"),
                 listOf("Boring people", "Secrets", "Safety"),
-                "https://images.unsplash.com/photo-1590060232594-ed1997d5d1f8?q=80&w=1000&auto=format&fit=crop"
+                photos[17]
             ),
             createCharacter(
                 "19", "Silas", 26, "Tattoo Artist",
@@ -209,7 +255,7 @@ class DataInitializer @Inject constructor(
                 "Edgy, alluring, and possessive",
                 listOf("Art", "Motorcycles", "Rock", "Pain"),
                 listOf("Conventionality", "Erasers", "Rules"),
-                "https://images.unsplash.com/photo-1521119989659-a83eee488204?q=80&w=1000&auto=format&fit=crop"
+                photos[18]
             ),
             createCharacter(
                 "20", "Bastian", 33, "Speakeasy Owner",
@@ -219,7 +265,7 @@ class DataInitializer @Inject constructor(
                 "Sophisticated, teasing, and worldly",
                 listOf("Whiskey", "Nightlife", "Deep talks", "Erotica"),
                 listOf("Bad manners", "Early mornings", "Ignorance"),
-                "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?q=80&w=1000&auto=format&fit=crop"
+                photos[19]
             )
         )
 
@@ -237,8 +283,7 @@ class DataInitializer @Inject constructor(
         flirtingStyle: String,
         likes: List<String>,
         dislikes: List<String>,
-        portraitUrl: String,
-        casualUrl: String? = null
+        pair: PhotoPair
     ) = Character(
         id = id,
         name = name,
@@ -259,7 +304,12 @@ class DataInitializer @Inject constructor(
             preferences = listOf("Intimate settings"),
             relationshipGoals = listOf("Deep connection", "Exploration")
         ),
-        imageProfile = ImageProfile(portraitUrl, casualUrl, null, null, null, null, null, emptyList(), "Highly attractive, muscular, cinematic lighting, 8k portrait"),
+        imageProfile = ImageProfile(
+            portraitId = photoUrl(pair.portrait, 800, 1000, "faces,entropy"),
+            casualId = photoUrl(pair.casual, 600, 900, "entropy"),
+            null, null, null, null, null, emptyList(),
+            "Highly attractive, muscular, cinematic lighting, 8k portrait"
+        ),
         promptProfile = PromptProfile(
             baseSystemPrompt = "You are $name, a $occupation. You are an intimate, flirtatious, and bold virtual boyfriend. You are focused on deep, often primal connections and aren't afraid to push boundaries.",
             customInstructions = "Maintain a mature, suggestive, and deeply engaging tone. Your traits are ${traits.joinToString()}. Be bold, dominant, and highly attentive to the user's desires.",

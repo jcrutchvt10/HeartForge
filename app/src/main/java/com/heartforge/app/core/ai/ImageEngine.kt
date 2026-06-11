@@ -18,11 +18,45 @@ enum class SceneType {
 
 @Singleton
 class ImageEngine @Inject constructor(
-    private val aiProvider: AIProvider,
-    private val imageStorage: ImageStorage
-) {
+        private val aiProvider: AIProvider,
+        private val imageStorage: ImageStorage
+    ) {
+        // Simple in‑memory cache: prompt hash -> saved image path.
+        private val promptCache = mutableMapOf<String, String>()
+
+    /**
+     * Fallback Unsplash image IDs for when AI generation fails.
+     * These are the same IDs used in DataInitializer for character portraits,
+     * providing the same aesthetic: edgy, attractive Caucasian men 18-39.
+     */
+    private val fallbackPortraits = listOf(
+        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+        "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea",
+        "https://images.unsplash.com/photo-1504257432389-52343af06ae3",
+        "https://images.unsplash.com/photo-1504593811423-6dd665756598",
+        "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7",
+        "https://images.unsplash.com/photo-1519058082700-08a0b56da9b4",
+        "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce"
+    )
+
+    private val fallbackForScene = mapOf(
+        SceneType.Casual to "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7",
+        SceneType.Gym to "https://images.unsplash.com/photo-1534438327276-14e5300c3a48",
+        SceneType.Beach to "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
+        SceneType.Formal to "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+        SceneType.Sleepwear to "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+        SceneType.Vacation to "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea",
+        SceneType.Selfie to "https://images.unsplash.com/photo-1504257432389-52343af06ae3"
+    )
+
+    private var portraitIndex = 0
+
     /**
      * Generates a contextual image for a character.
+     * Falls back to an Unsplash placeholder if AI generation fails.
      * @return The local file path of the generated image.
      */
     suspend fun generateContextualImage(
@@ -30,6 +64,12 @@ class ImageEngine @Inject constructor(
         sceneType: SceneType,
         customContext: String? = null
     ): ImageResult {
+        // Build a deterministic cache key based on character, scene and optional context.
+        val cacheKey = "${character.id}_${sceneType}_" + (customContext?.hashCode() ?: 0)
+        promptCache[cacheKey]?.let { cachedPath ->
+            return ImageResult.Success(cachedPath)
+        }
+
         val prompt = buildPrompt(character, sceneType, customContext)
         val negativePrompt = "blurry, low quality, distorted, extra limbs, bad anatomy, text, watermark"
 
@@ -38,13 +78,37 @@ class ImageEngine @Inject constructor(
         return if (result is ImageResult.Success) {
             val localPath = imageStorage.saveBase64Image(result.base64)
             if (localPath != null) {
+                // Cache the successful path for future requests.
+                promptCache[cacheKey] = localPath
                 ImageResult.Success(localPath)
             } else {
-                ImageResult.Error("Failed to save image locally")
+                getFallback(sceneType)
             }
         } else {
-            result
+            getFallback(sceneType)
         }
+    }
+
+    /**
+     * Returns a cached/fallback image URL when AI generation fails.
+     * For Portrait scenes, cycles through the pool; for others, maps to the best fit.
+     */
+    fun getFallbackImageUrl(sceneType: SceneType? = null): String {
+        return if (sceneType == null) {
+            // Cycle through portrait collection
+            val url = fallbackPortraits[portraitIndex % fallbackPortraits.size]
+            portraitIndex++
+            "$url?w=600&h=800&fit=crop"
+        } else {
+            val base = fallbackForScene[sceneType]
+                ?: fallbackPortraits[portraitIndex++ % fallbackPortraits.size]
+            "$base?w=600&h=800&fit=crop"
+        }
+    }
+
+    private fun getFallback(sceneType: SceneType): ImageResult {
+        val url = getFallbackImageUrl(sceneType)
+        return ImageResult.Error("Using fallback image: $url")
     }
 
     private fun buildPrompt(

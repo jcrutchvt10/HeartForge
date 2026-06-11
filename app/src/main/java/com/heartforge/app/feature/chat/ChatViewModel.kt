@@ -47,7 +47,7 @@ class ChatViewModel @Inject constructor(
 
             launch {
                 chatRepository.getMessages(characterId).collect { messages ->
-                    _uiState.update { it.copy(messages = messages, isAssistantTyping = false) }
+                    _uiState.update { it.copy(messages = messages) }
                 }
             }
 
@@ -88,6 +88,18 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             chatRepository.sendMessage(characterId, message, storyContext)
+            _uiState.update { it.copy(isAssistantTyping = false) }
+        }
+    }
+
+    fun retryLastMessage() {
+        val messages = _uiState.value.messages
+        // Find the last user message that isn't followed by a successful assistant response
+        val lastUserMsg = messages.lastOrNull { it.role == MessageRole.User } ?: return
+        val msgsAfter = messages.dropWhile { it.id != lastUserMsg.id }.drop(1)
+        val hasAssistantResponse = msgsAfter.any { it.role == MessageRole.Assistant }
+        if (!hasAssistantResponse) {
+            sendMessage()
         }
     }
 }

@@ -26,3 +26,18 @@ data class StoryProgress(
     val completedChapterIds: List<String>,
     val activeChapterId: String?
 )
+
+data class StoryChoice(
+    val id: String,
+    val text: String,
+    val narration: String,
+    val statChanges: StoryStatChanges,
+    val chapterContext: String
+)
+
+data class StoryStatChanges(
+    val trust: Int = 0,
+    val romance: Int = 0,
+    val intimacy: Int = 0,
+    val affection: Int = 0
+)

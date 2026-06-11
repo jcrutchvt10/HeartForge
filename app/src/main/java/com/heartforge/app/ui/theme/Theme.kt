@@ -9,6 +9,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -18,16 +19,17 @@ import androidx.core.view.WindowCompat
 private val DarkColorScheme = darkColorScheme(
     primary = RoseRed,
     secondary = LuxeGold,
-    tertiary = Silver,
+    tertiary = NeonCyan,
     background = Charcoal,
-    surface = Charcoal,
+    surface = SurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
     onPrimary = Color.Black,
     onSecondary = Color.Black,
-    onTertiary = Charcoal,
-    onBackground = White,
-    onSurface = White,
-    surfaceVariant = Color(0xFF2C2C2E), // Lighter variant for cards
-    onSurfaceVariant = Silver
+    onTertiary = Color.Black,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary,
+    onSurfaceVariant = TextSecondary,
+    outline = GlassBorder
 )
 
 @Composable
@@ -51,18 +53,18 @@ fun HeartForgeTheme(
         typography = Typography,
         shapes = Shapes
     ) {
-        // Subtle background gradient for depth, but maintaining deep black base
+        // Dark radial gradient background for depth and mood
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            Color(0xFF0F0F12),
-                            Charcoal
+                            Color(0xFF1A1020), // Deep purple-black center
+                            Charcoal          // True dark edges
                         ),
-                        center = androidx.compose.ui.geometry.Offset(500f, 500f),
-                        radius = 3000f
+                        center = Offset(200f, 200f),
+                        radius = 1200f
                     )
                 )
         ) {

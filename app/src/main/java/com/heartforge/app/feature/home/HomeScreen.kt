@@ -156,6 +156,7 @@ fun SectionHeader(title: String) {
         text = title,
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
+        color = RoseRed,
         modifier = Modifier.padding(bottom = 4.dp)
     )
 }
@@ -181,8 +182,8 @@ fun CharacterCardLarge(character: Character, status: String, onClick: () -> Unit
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text(character.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(character.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = RoseRed)
+                Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
             }
         }
     }
@@ -208,7 +209,7 @@ fun CharacterCardSmall(character: Character, onClick: () -> Unit = {}) {
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(character.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+            Text(character.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = RoseRed)
             Text(character.personality.traits.firstOrNull() ?: "", style = MaterialTheme.typography.labelSmall, color = RoseRed)
         }
     }
