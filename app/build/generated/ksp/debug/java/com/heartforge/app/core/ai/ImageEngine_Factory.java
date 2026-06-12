@@ -3,10 +3,10 @@ package com.heartforge.app.core.ai;
 import com.heartforge.app.core.util.ImageStorage;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -21,14 +21,15 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class ImageEngine_Factory implements Factory<ImageEngine> {
   private final Provider<AIProvider> aiProvider;
 
   private final Provider<ImageStorage> imageStorageProvider;
 
-  public ImageEngine_Factory(Provider<AIProvider> aiProvider,
+  private ImageEngine_Factory(Provider<AIProvider> aiProvider,
       Provider<ImageStorage> imageStorageProvider) {
     this.aiProvider = aiProvider;
     this.imageStorageProvider = imageStorageProvider;

@@ -5,10 +5,10 @@ import com.heartforge.app.core.network.nvidia.NVIDIAImageApiService;
 import com.heartforge.app.core.repository.SettingsRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -23,7 +23,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class NVIDIAProvider_Factory implements Factory<NVIDIAProvider> {
   private final Provider<NVIDIAApiService> apiServiceProvider;
@@ -32,8 +33,12 @@ public final class NVIDIAProvider_Factory implements Factory<NVIDIAProvider> {
 
   private final Provider<SettingsRepository> settingsRepositoryProvider;
 
+<<<<<<< Updated upstream
   public NVIDIAProvider_Factory(Provider<NVIDIAApiService> apiServiceProvider,
       Provider<NVIDIAImageApiService> imageApiServiceProvider,
+=======
+  private NVIDIAProvider_Factory(Provider<NVIDIAApiService> apiServiceProvider,
+>>>>>>> Stashed changes
       Provider<SettingsRepository> settingsRepositoryProvider) {
     this.apiServiceProvider = apiServiceProvider;
     this.imageApiServiceProvider = imageApiServiceProvider;

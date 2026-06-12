@@ -4,10 +4,10 @@ import com.heartforge.app.core.ai.ImageEngine;
 import com.heartforge.app.core.repository.CharacterRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -22,14 +22,15 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class CreatorViewModel_Factory implements Factory<CreatorViewModel> {
   private final Provider<CharacterRepository> characterRepositoryProvider;
 
   private final Provider<ImageEngine> imageEngineProvider;
 
-  public CreatorViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
+  private CreatorViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
       Provider<ImageEngine> imageEngineProvider) {
     this.characterRepositoryProvider = characterRepositoryProvider;
     this.imageEngineProvider = imageEngineProvider;

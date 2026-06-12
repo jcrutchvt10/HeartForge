@@ -4,10 +4,10 @@ import com.heartforge.app.core.repository.MemoryRepository;
 import com.heartforge.app.core.repository.RelationshipRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -22,7 +22,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class EvolutionaryEngine_Factory implements Factory<EvolutionaryEngine> {
   private final Provider<AIProvider> aiProvider;
@@ -31,7 +32,7 @@ public final class EvolutionaryEngine_Factory implements Factory<EvolutionaryEng
 
   private final Provider<MemoryRepository> memoryRepositoryProvider;
 
-  public EvolutionaryEngine_Factory(Provider<AIProvider> aiProvider,
+  private EvolutionaryEngine_Factory(Provider<AIProvider> aiProvider,
       Provider<RelationshipRepository> relationshipRepositoryProvider,
       Provider<MemoryRepository> memoryRepositoryProvider) {
     this.aiProvider = aiProvider;

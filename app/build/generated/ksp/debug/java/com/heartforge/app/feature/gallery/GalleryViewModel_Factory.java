@@ -5,10 +5,10 @@ import com.heartforge.app.core.ai.NSFWGenerator;
 import com.heartforge.app.core.repository.CharacterRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -23,11 +23,13 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class GalleryViewModel_Factory implements Factory<GalleryViewModel> {
   private final Provider<CharacterRepository> characterRepositoryProvider;
 
+<<<<<<< Updated upstream
   private final Provider<NSFWGenerator> nsfwGeneratorProvider;
 
   private final Provider<CasualPhotoGenerator> casualPhotoGeneratorProvider;
@@ -35,6 +37,9 @@ public final class GalleryViewModel_Factory implements Factory<GalleryViewModel>
   public GalleryViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
       Provider<NSFWGenerator> nsfwGeneratorProvider,
       Provider<CasualPhotoGenerator> casualPhotoGeneratorProvider) {
+=======
+  private GalleryViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider) {
+>>>>>>> Stashed changes
     this.characterRepositoryProvider = characterRepositoryProvider;
     this.nsfwGeneratorProvider = nsfwGeneratorProvider;
     this.casualPhotoGeneratorProvider = casualPhotoGeneratorProvider;

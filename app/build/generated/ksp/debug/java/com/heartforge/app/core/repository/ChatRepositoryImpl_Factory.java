@@ -11,10 +11,10 @@ import com.heartforge.app.core.util.DataInitializer;
 import com.heartforge.app.core.util.NotificationHelper;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -29,7 +29,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class ChatRepositoryImpl_Factory implements Factory<ChatRepositoryImpl> {
   private final Provider<MessageDao> messageDaoProvider;
@@ -50,6 +51,7 @@ public final class ChatRepositoryImpl_Factory implements Factory<ChatRepositoryI
 
   private final Provider<ImageEngine> imageEngineProvider;
 
+<<<<<<< Updated upstream
   private final Provider<UserProfileRepository> userProfileRepositoryProvider;
 
   private final Provider<NotificationHelper> notificationHelperProvider;
@@ -57,6 +59,9 @@ public final class ChatRepositoryImpl_Factory implements Factory<ChatRepositoryI
   private final Provider<AppForegroundState> foregroundStateProvider;
 
   public ChatRepositoryImpl_Factory(Provider<MessageDao> messageDaoProvider,
+=======
+  private ChatRepositoryImpl_Factory(Provider<MessageDao> messageDaoProvider,
+>>>>>>> Stashed changes
       Provider<AIProvider> aiProvider, Provider<PromptEngine> promptEngineProvider,
       Provider<EvolutionaryEngine> evolutionaryEngineProvider,
       Provider<CharacterRepository> characterRepositoryProvider,

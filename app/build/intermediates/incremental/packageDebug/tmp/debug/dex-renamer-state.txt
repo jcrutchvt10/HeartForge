@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 #Thu Jun 11 18:59:52 EDT 2026
 base.0=C\:\\Users\\jason\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\jason\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
@@ -14,13 +15,33 @@ base.6=C\:\\Users\\jason\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mer
 base.7=C\:\\Users\\jason\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\2\\classes.dex
 base.8=C\:\\Users\\jason\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\5\\classes.dex
 base.9=C\:\\Users\\jason\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex
+=======
+#Fri Jun 12 13:59:02 EDT 2026
+base.0=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
+base.1=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+base.10=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\7\\classes.dex
+base.11=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\8\\classes.dex
+base.12=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex
+base.13=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\global_synthetics_dex\\debug\\generateDebugGlobalSynthetics\\classes.dex
+base.14=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes2.dex
+base.15=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes3.dex
+base.2=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\10\\classes.dex
+base.3=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\11\\classes.dex
+base.4=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\12\\classes.dex
+base.5=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\14\\classes.dex
+base.6=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\15\\classes.dex
+base.7=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\2\\classes.dex
+base.8=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\5\\classes.dex
+base.9=C\:\\Users\\jason\\StudioProjects\\HeartForge\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex
+>>>>>>> Stashed changes
 path.0=classes.dex
 path.1=0/classes.dex
 path.10=7/classes.dex
 path.11=8/classes.dex
 path.12=9/classes.dex
-path.13=classes2.dex
-path.14=classes3.dex
+path.13=classes.dex
+path.14=classes2.dex
+path.15=classes3.dex
 path.2=10/classes.dex
 path.3=11/classes.dex
 path.4=12/classes.dex
@@ -36,6 +57,7 @@ renamed.11=classes12.dex
 renamed.12=classes13.dex
 renamed.13=classes14.dex
 renamed.14=classes15.dex
+renamed.15=classes16.dex
 renamed.2=classes3.dex
 renamed.3=classes4.dex
 renamed.4=classes5.dex

@@ -47,26 +47,49 @@ import com.heartforge.app.feature.chat.ChatListViewModel;
 import com.heartforge.app.feature.chat.ChatListViewModel_HiltModules;
 import com.heartforge.app.feature.chat.ChatViewModel;
 import com.heartforge.app.feature.chat.ChatViewModel_HiltModules;
+import com.heartforge.app.feature.chat.ChatViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.chat.ChatViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.heartforge.app.feature.creator.CreatorViewModel;
 import com.heartforge.app.feature.creator.CreatorViewModel_HiltModules;
+import com.heartforge.app.feature.creator.CreatorViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.creator.CreatorViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.heartforge.app.feature.gallery.GalleryViewModel;
 import com.heartforge.app.feature.gallery.GalleryViewModel_HiltModules;
+import com.heartforge.app.feature.gallery.GalleryViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.gallery.GalleryViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.heartforge.app.feature.home.HomeViewModel;
 import com.heartforge.app.feature.home.HomeViewModel_HiltModules;
+import com.heartforge.app.feature.home.HomeViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.home.HomeViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.heartforge.app.feature.matches.CharacterProfileViewModel;
 import com.heartforge.app.feature.matches.CharacterProfileViewModel_HiltModules;
+import com.heartforge.app.feature.matches.CharacterProfileViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.matches.CharacterProfileViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.heartforge.app.feature.matches.MatchViewModel;
 import com.heartforge.app.feature.matches.MatchViewModel_HiltModules;
+import com.heartforge.app.feature.matches.MatchViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.matches.MatchViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.heartforge.app.feature.memories.MemoryViewModel;
 import com.heartforge.app.feature.memories.MemoryViewModel_HiltModules;
+<<<<<<< Updated upstream
 import com.heartforge.app.feature.profile.ProfileSettingsViewModel;
 import com.heartforge.app.feature.profile.ProfileSettingsViewModel_HiltModules;
 import com.heartforge.app.feature.settings.SettingsViewModel;
 import com.heartforge.app.feature.settings.SettingsViewModel_HiltModules;
 import com.heartforge.app.feature.stories.StoryPlayViewModel;
 import com.heartforge.app.feature.stories.StoryPlayViewModel_HiltModules;
+=======
+import com.heartforge.app.feature.memories.MemoryViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.memories.MemoryViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
+import com.heartforge.app.feature.settings.SettingsViewModel;
+import com.heartforge.app.feature.settings.SettingsViewModel_HiltModules;
+import com.heartforge.app.feature.settings.SettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.settings.SettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
+>>>>>>> Stashed changes
 import com.heartforge.app.feature.stories.StoryViewModel;
 import com.heartforge.app.feature.stories.StoryViewModel_HiltModules;
+import com.heartforge.app.feature.stories.StoryViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.heartforge.app.feature.stories.StoryViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
@@ -84,8 +107,6 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
-import dagger.internal.IdentifierNameString;
-import dagger.internal.KeepFieldType;
 import dagger.internal.LazyClassKeyMap;
 import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
@@ -107,7 +128,8 @@ import okhttp3.OkHttpClient;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
   private DaggerHeartForgeApplication_HiltComponents_SingletonC() {
@@ -342,7 +364,7 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final ViewWithFragmentCImpl viewWithFragmentCImpl = this;
 
-    private ViewWithFragmentCImpl(SingletonCImpl singletonCImpl,
+    ViewWithFragmentCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
         FragmentCImpl fragmentCImpl, View viewParam) {
       this.singletonCImpl = singletonCImpl;
@@ -363,9 +385,8 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final FragmentCImpl fragmentCImpl = this;
 
-    private FragmentCImpl(SingletonCImpl singletonCImpl,
-        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
-        Fragment fragmentParam) {
+    FragmentCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl, Fragment fragmentParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
       this.activityCImpl = activityCImpl;
@@ -393,7 +414,7 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final ViewCImpl viewCImpl = this;
 
-    private ViewCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+    ViewCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
         ActivityCImpl activityCImpl, View viewParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
@@ -410,12 +431,26 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final ActivityCImpl activityCImpl = this;
 
-    private ActivityCImpl(SingletonCImpl singletonCImpl,
-        ActivityRetainedCImpl activityRetainedCImpl, Activity activityParam) {
+    ActivityCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        Activity activityParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
 
 
+    }
+
+    Map keySetMapOfClassOfAndBooleanBuilder() {
+      MapBuilder mapBuilder = MapBuilder.<String, Boolean>newMapBuilder(9);
+      mapBuilder.put(CharacterProfileViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, CharacterProfileViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(ChatViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, ChatViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(CreatorViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, CreatorViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(GalleryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, GalleryViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(HomeViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, HomeViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(MatchViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, MatchViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(MemoryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, MemoryViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(SettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, SettingsViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(StoryViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, StoryViewModel_HiltModules.KeyModule.provide());
+      return mapBuilder.build();
     }
 
     @Override
@@ -429,7 +464,11 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
+<<<<<<< Updated upstream
       return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(12).put(LazyClassKeyProvider.com_heartforge_app_feature_matches_CharacterProfileViewModel, CharacterProfileViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_chat_ChatListViewModel, ChatListViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_chat_ChatViewModel, ChatViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_creator_CreatorViewModel, CreatorViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_gallery_GalleryViewModel, GalleryViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_home_HomeViewModel, HomeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_matches_MatchViewModel, MatchViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_memories_MemoryViewModel, MemoryViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_profile_ProfileSettingsViewModel, ProfileSettingsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_settings_SettingsViewModel, SettingsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_stories_StoryPlayViewModel, StoryPlayViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_heartforge_app_feature_stories_StoryViewModel, StoryViewModel_HiltModules.KeyModule.provide()).build());
+=======
+      return LazyClassKeyMap.<Boolean>of(keySetMapOfClassOfAndBooleanBuilder());
+>>>>>>> Stashed changes
     }
 
     @Override
@@ -446,6 +485,7 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
     public ViewComponentBuilder viewComponentBuilder() {
       return new ViewCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
     }
+<<<<<<< Updated upstream
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
@@ -509,6 +549,8 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
       @KeepFieldType
       StoryPlayViewModel com_heartforge_app_feature_stories_StoryPlayViewModel2;
     }
+=======
+>>>>>>> Stashed changes
   }
 
   private static final class ViewModelCImpl extends HeartForgeApplication_HiltComponents.ViewModelC {
@@ -520,22 +562,27 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
-    private Provider<CharacterProfileViewModel> characterProfileViewModelProvider;
+    Provider<CharacterProfileViewModel> characterProfileViewModelProvider;
 
+<<<<<<< Updated upstream
     private Provider<ChatListViewModel> chatListViewModelProvider;
 
     private Provider<ChatViewModel> chatViewModelProvider;
+=======
+    Provider<ChatViewModel> chatViewModelProvider;
+>>>>>>> Stashed changes
 
-    private Provider<CreatorViewModel> creatorViewModelProvider;
+    Provider<CreatorViewModel> creatorViewModelProvider;
 
-    private Provider<GalleryViewModel> galleryViewModelProvider;
+    Provider<GalleryViewModel> galleryViewModelProvider;
 
-    private Provider<HomeViewModel> homeViewModelProvider;
+    Provider<HomeViewModel> homeViewModelProvider;
 
-    private Provider<MatchViewModel> matchViewModelProvider;
+    Provider<MatchViewModel> matchViewModelProvider;
 
-    private Provider<MemoryViewModel> memoryViewModelProvider;
+    Provider<MemoryViewModel> memoryViewModelProvider;
 
+<<<<<<< Updated upstream
     private Provider<ProfileSettingsViewModel> profileSettingsViewModelProvider;
 
     private Provider<SettingsViewModel> settingsViewModelProvider;
@@ -543,15 +590,33 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
     private Provider<StoryPlayViewModel> storyPlayViewModelProvider;
 
     private Provider<StoryViewModel> storyViewModelProvider;
+=======
+    Provider<SettingsViewModel> settingsViewModelProvider;
 
-    private ViewModelCImpl(SingletonCImpl singletonCImpl,
-        ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
-        ViewModelLifecycle viewModelLifecycleParam) {
+    Provider<StoryViewModel> storyViewModelProvider;
+>>>>>>> Stashed changes
+
+    ViewModelCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        SavedStateHandle savedStateHandleParam, ViewModelLifecycle viewModelLifecycleParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
       this.savedStateHandle = savedStateHandleParam;
       initialize(savedStateHandleParam, viewModelLifecycleParam);
 
+    }
+
+    Map hiltViewModelMapMapOfClassOfAndProviderOfViewModelBuilder() {
+      MapBuilder mapBuilder = MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(9);
+      mapBuilder.put(CharacterProfileViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (characterProfileViewModelProvider)));
+      mapBuilder.put(ChatViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (chatViewModelProvider)));
+      mapBuilder.put(CreatorViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (creatorViewModelProvider)));
+      mapBuilder.put(GalleryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (galleryViewModelProvider)));
+      mapBuilder.put(HomeViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (homeViewModelProvider)));
+      mapBuilder.put(MatchViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (matchViewModelProvider)));
+      mapBuilder.put(MemoryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (memoryViewModelProvider)));
+      mapBuilder.put(SettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (settingsViewModelProvider)));
+      mapBuilder.put(StoryViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (storyViewModelProvider)));
+      return mapBuilder.build();
     }
 
     @SuppressWarnings("unchecked")
@@ -573,7 +638,11 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
+<<<<<<< Updated upstream
       return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(12).put(LazyClassKeyProvider.com_heartforge_app_feature_matches_CharacterProfileViewModel, ((Provider) characterProfileViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_chat_ChatListViewModel, ((Provider) chatListViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_chat_ChatViewModel, ((Provider) chatViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_creator_CreatorViewModel, ((Provider) creatorViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_gallery_GalleryViewModel, ((Provider) galleryViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_home_HomeViewModel, ((Provider) homeViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_matches_MatchViewModel, ((Provider) matchViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_memories_MemoryViewModel, ((Provider) memoryViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_profile_ProfileSettingsViewModel, ((Provider) profileSettingsViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_settings_SettingsViewModel, ((Provider) settingsViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_stories_StoryPlayViewModel, ((Provider) storyPlayViewModelProvider)).put(LazyClassKeyProvider.com_heartforge_app_feature_stories_StoryViewModel, ((Provider) storyViewModelProvider)).build());
+=======
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(hiltViewModelMapMapOfClassOfAndProviderOfViewModelBuilder());
+>>>>>>> Stashed changes
     }
 
     @Override
@@ -581,6 +650,7 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
       return Collections.<Class<?>, Object>emptyMap();
     }
 
+<<<<<<< Updated upstream
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
       static String com_heartforge_app_feature_stories_StoryPlayViewModel = "com.heartforge.app.feature.stories.StoryPlayViewModel";
@@ -644,6 +714,8 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
       HomeViewModel com_heartforge_app_feature_home_HomeViewModel2;
     }
 
+=======
+>>>>>>> Stashed changes
     private static final class SwitchingProvider<T> implements Provider<T> {
       private final SingletonCImpl singletonCImpl;
 
@@ -661,13 +733,14 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
-          case 0: // com.heartforge.app.feature.matches.CharacterProfileViewModel 
+          case 0: // com.heartforge.app.feature.matches.CharacterProfileViewModel
           return (T) new CharacterProfileViewModel(singletonCImpl.characterRepositoryImplProvider.get(), viewModelCImpl.savedStateHandle);
 
+<<<<<<< Updated upstream
           case 1: // com.heartforge.app.feature.chat.ChatListViewModel 
           return (T) new ChatListViewModel(singletonCImpl.messageDao(), singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.chatRepositoryImplProvider.get());
 
@@ -699,6 +772,30 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
           return (T) new StoryPlayViewModel(singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.storyRepositoryImplProvider.get(), singletonCImpl.storyBranchGeneratorProvider.get(), singletonCImpl.relationshipRepositoryImplProvider.get(), viewModelCImpl.savedStateHandle);
 
           case 11: // com.heartforge.app.feature.stories.StoryViewModel 
+=======
+          case 1: // com.heartforge.app.feature.chat.ChatViewModel
+          return (T) new ChatViewModel(singletonCImpl.chatRepositoryImplProvider.get(), singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.relationshipRepositoryImplProvider.get(), singletonCImpl.storyRepositoryImplProvider.get(), viewModelCImpl.savedStateHandle);
+
+          case 2: // com.heartforge.app.feature.creator.CreatorViewModel
+          return (T) new CreatorViewModel(singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.imageEngineProvider.get());
+
+          case 3: // com.heartforge.app.feature.gallery.GalleryViewModel
+          return (T) new GalleryViewModel(singletonCImpl.characterRepositoryImplProvider.get());
+
+          case 4: // com.heartforge.app.feature.home.HomeViewModel
+          return (T) new HomeViewModel(singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.dataInitializerProvider.get(), singletonCImpl.memoryDao());
+
+          case 5: // com.heartforge.app.feature.matches.MatchViewModel
+          return (T) new MatchViewModel(singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.matchmakingEngineProvider.get(), singletonCImpl.dataInitializerProvider.get());
+
+          case 6: // com.heartforge.app.feature.memories.MemoryViewModel
+          return (T) new MemoryViewModel(singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.memoryDao(), viewModelCImpl.savedStateHandle);
+
+          case 7: // com.heartforge.app.feature.settings.SettingsViewModel
+          return (T) new SettingsViewModel(singletonCImpl.settingsRepositoryImplProvider.get(), singletonCImpl.provideNvidiaApiServiceProvider.get());
+
+          case 8: // com.heartforge.app.feature.stories.StoryViewModel
+>>>>>>> Stashed changes
           return (T) new StoryViewModel(singletonCImpl.storyRepositoryImplProvider.get(), singletonCImpl.relationshipRepositoryImplProvider.get());
 
           default: throw new AssertionError(id);
@@ -712,9 +809,9 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final ActivityRetainedCImpl activityRetainedCImpl = this;
 
-    private Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
+    Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
 
-    private ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
+    ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
         SavedStateHandleHolder savedStateHandleHolderParam) {
       this.singletonCImpl = singletonCImpl;
 
@@ -751,11 +848,11 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
-          case 0: // dagger.hilt.android.ActivityRetainedLifecycle 
+          case 0: // dagger.hilt.android.ActivityRetainedLifecycle
           return (T) ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory.provideActivityRetainedLifecycle();
 
           default: throw new AssertionError(id);
@@ -769,7 +866,7 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final ServiceCImpl serviceCImpl = this;
 
-    private ServiceCImpl(SingletonCImpl singletonCImpl, Service serviceParam) {
+    ServiceCImpl(SingletonCImpl singletonCImpl, Service serviceParam) {
       this.singletonCImpl = singletonCImpl;
 
 
@@ -781,46 +878,59 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
+<<<<<<< Updated upstream
     private Provider<AppForegroundState> appForegroundStateProvider;
 
     private Provider<HeartForgeDatabase> provideDatabaseProvider;
+=======
+    Provider<HeartForgeDatabase> provideDatabaseProvider;
+>>>>>>> Stashed changes
 
-    private Provider<CharacterRepositoryImpl> characterRepositoryImplProvider;
+    Provider<CharacterRepositoryImpl> characterRepositoryImplProvider;
 
-    private Provider<OkHttpClient> provideOkHttpClientProvider;
+    Provider<OkHttpClient> provideOkHttpClientProvider;
 
-    private Provider<SecureSettings> secureSettingsProvider;
+    Provider<SecureSettings> secureSettingsProvider;
 
-    private Provider<SettingsRepositoryImpl> settingsRepositoryImplProvider;
+    Provider<SettingsRepositoryImpl> settingsRepositoryImplProvider;
 
-    private Provider<NVIDIAApiService> provideNvidiaApiServiceProvider;
+    Provider<NVIDIAApiService> provideNvidiaApiServiceProvider;
 
+<<<<<<< Updated upstream
     private Provider<NVIDIAImageApiService> provideNvidiaImageApiServiceProvider;
 
     private Provider<NVIDIAProvider> nVIDIAProvider;
+=======
+    Provider<NVIDIAProvider> nVIDIAProvider;
+>>>>>>> Stashed changes
 
-    private Provider<PromptEngine> promptEngineProvider;
+    Provider<PromptEngine> promptEngineProvider;
 
-    private Provider<RelationshipRepositoryImpl> relationshipRepositoryImplProvider;
+    Provider<RelationshipRepositoryImpl> relationshipRepositoryImplProvider;
 
-    private Provider<MemoryRepositoryImpl> memoryRepositoryImplProvider;
+    Provider<MemoryRepositoryImpl> memoryRepositoryImplProvider;
 
-    private Provider<EvolutionaryEngine> evolutionaryEngineProvider;
+    Provider<EvolutionaryEngine> evolutionaryEngineProvider;
 
-    private Provider<DataInitializer> dataInitializerProvider;
+    Provider<DataInitializer> dataInitializerProvider;
 
-    private Provider<ImageStorage> imageStorageProvider;
+    Provider<ImageStorage> imageStorageProvider;
 
-    private Provider<ImageEngine> imageEngineProvider;
+    Provider<ImageEngine> imageEngineProvider;
 
+<<<<<<< Updated upstream
     private Provider<UserProfileRepositoryImpl> userProfileRepositoryImplProvider;
 
     private Provider<NotificationHelper> notificationHelperProvider;
 
     private Provider<ChatRepositoryImpl> chatRepositoryImplProvider;
+=======
+    Provider<ChatRepositoryImpl> chatRepositoryImplProvider;
+>>>>>>> Stashed changes
 
-    private Provider<StoryRepositoryImpl> storyRepositoryImplProvider;
+    Provider<StoryRepositoryImpl> storyRepositoryImplProvider;
 
+<<<<<<< Updated upstream
     private Provider<NSFWGenerator> nSFWGeneratorProvider;
 
     private Provider<CasualPhotoGenerator> casualPhotoGeneratorProvider;
@@ -830,28 +940,33 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
     private Provider<StoryBranchGenerator> storyBranchGeneratorProvider;
 
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+=======
+    Provider<MatchmakingEngine> matchmakingEngineProvider;
+
+    SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+>>>>>>> Stashed changes
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
 
     }
 
-    private CharacterDao characterDao() {
+    CharacterDao characterDao() {
       return DatabaseModule_ProvideCharacterDaoFactory.provideCharacterDao(provideDatabaseProvider.get());
     }
 
-    private MessageDao messageDao() {
+    MessageDao messageDao() {
       return DatabaseModule_ProvideMessageDaoFactory.provideMessageDao(provideDatabaseProvider.get());
     }
 
-    private RelationshipDao relationshipDao() {
+    RelationshipDao relationshipDao() {
       return DatabaseModule_ProvideRelationshipDaoFactory.provideRelationshipDao(provideDatabaseProvider.get());
     }
 
-    private MemoryDao memoryDao() {
+    MemoryDao memoryDao() {
       return DatabaseModule_ProvideMemoryDaoFactory.provideMemoryDao(provideDatabaseProvider.get());
     }
 
-    private StoryDao storyDao() {
+    StoryDao storyDao() {
       return DatabaseModule_ProvideStoryDaoFactory.provideStoryDao(provideDatabaseProvider.get());
     }
 
@@ -918,10 +1033,11 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
+<<<<<<< Updated upstream
           case 0: // com.heartforge.app.core.util.AppForegroundState 
           return (T) new AppForegroundState();
 
@@ -989,6 +1105,57 @@ public final class DaggerHeartForgeApplication_HiltComponents_SingletonC {
           return (T) new CasualPhotoGenerator(singletonCImpl.nVIDIAProvider.get(), singletonCImpl.imageStorageProvider.get(), singletonCImpl.characterRepositoryImplProvider.get());
 
           case 22: // com.heartforge.app.core.ai.MatchmakingEngine 
+=======
+          case 0: // com.heartforge.app.core.repository.CharacterRepositoryImpl
+          return (T) new CharacterRepositoryImpl(singletonCImpl.characterDao());
+
+          case 1: // com.heartforge.app.core.database.HeartForgeDatabase
+          return (T) DatabaseModule_ProvideDatabaseFactory.provideDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 2: // com.heartforge.app.core.repository.ChatRepositoryImpl
+          return (T) new ChatRepositoryImpl(singletonCImpl.messageDao(), singletonCImpl.nVIDIAProvider.get(), singletonCImpl.promptEngineProvider.get(), singletonCImpl.evolutionaryEngineProvider.get(), singletonCImpl.characterRepositoryImplProvider.get(), singletonCImpl.relationshipRepositoryImplProvider.get(), singletonCImpl.dataInitializerProvider.get(), singletonCImpl.memoryDao(), singletonCImpl.imageEngineProvider.get());
+
+          case 3: // com.heartforge.app.core.ai.nvidia.NVIDIAProvider
+          return (T) new NVIDIAProvider(singletonCImpl.provideNvidiaApiServiceProvider.get(), singletonCImpl.settingsRepositoryImplProvider.get());
+
+          case 4: // com.heartforge.app.core.network.nvidia.NVIDIAApiService
+          return (T) NetworkModule_ProvideNvidiaApiServiceFactory.provideNvidiaApiService(singletonCImpl.provideOkHttpClientProvider.get(), singletonCImpl.settingsRepositoryImplProvider.get());
+
+          case 5: // okhttp3.OkHttpClient
+          return (T) NetworkModule_ProvideOkHttpClientFactory.provideOkHttpClient();
+
+          case 6: // com.heartforge.app.core.repository.SettingsRepositoryImpl
+          return (T) new SettingsRepositoryImpl(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.secureSettingsProvider.get());
+
+          case 7: // com.heartforge.app.core.util.SecureSettings
+          return (T) new SecureSettings(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 8: // com.heartforge.app.core.ai.PromptEngine
+          return (T) new PromptEngine();
+
+          case 9: // com.heartforge.app.core.ai.EvolutionaryEngine
+          return (T) new EvolutionaryEngine(singletonCImpl.nVIDIAProvider.get(), singletonCImpl.relationshipRepositoryImplProvider.get(), singletonCImpl.memoryRepositoryImplProvider.get());
+
+          case 10: // com.heartforge.app.core.repository.RelationshipRepositoryImpl
+          return (T) new RelationshipRepositoryImpl(singletonCImpl.relationshipDao());
+
+          case 11: // com.heartforge.app.core.repository.MemoryRepositoryImpl
+          return (T) new MemoryRepositoryImpl(singletonCImpl.memoryDao());
+
+          case 12: // com.heartforge.app.core.util.DataInitializer
+          return (T) new DataInitializer(singletonCImpl.characterDao());
+
+          case 13: // com.heartforge.app.core.ai.ImageEngine
+          return (T) new ImageEngine(singletonCImpl.nVIDIAProvider.get(), singletonCImpl.imageStorageProvider.get());
+
+          case 14: // com.heartforge.app.core.util.ImageStorage
+          return (T) new ImageStorage(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 15: // com.heartforge.app.core.repository.StoryRepositoryImpl
+          return (T) new StoryRepositoryImpl(singletonCImpl.storyDao());
+
+          case 16: // com.heartforge.app.core.ai.MatchmakingEngine
+>>>>>>> Stashed changes
           return (T) new MatchmakingEngine(singletonCImpl.nVIDIAProvider.get());
 
           case 23: // com.heartforge.app.core.ai.StoryBranchGenerator 

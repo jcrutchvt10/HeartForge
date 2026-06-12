@@ -4,10 +4,10 @@ import com.heartforge.app.core.repository.RelationshipRepository;
 import com.heartforge.app.core.repository.StoryRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -22,14 +22,15 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class StoryViewModel_Factory implements Factory<StoryViewModel> {
   private final Provider<StoryRepository> storyRepositoryProvider;
 
   private final Provider<RelationshipRepository> relationshipRepositoryProvider;
 
-  public StoryViewModel_Factory(Provider<StoryRepository> storyRepositoryProvider,
+  private StoryViewModel_Factory(Provider<StoryRepository> storyRepositoryProvider,
       Provider<RelationshipRepository> relationshipRepositoryProvider) {
     this.storyRepositoryProvider = storyRepositoryProvider;
     this.relationshipRepositoryProvider = relationshipRepositoryProvider;

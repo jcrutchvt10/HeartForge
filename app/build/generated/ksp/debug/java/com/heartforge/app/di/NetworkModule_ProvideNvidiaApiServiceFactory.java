@@ -5,10 +5,10 @@ import com.heartforge.app.core.repository.SettingsRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 import okhttp3.OkHttpClient;
 
 @ScopeMetadata("javax.inject.Singleton")
@@ -24,14 +24,15 @@ import okhttp3.OkHttpClient;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class NetworkModule_ProvideNvidiaApiServiceFactory implements Factory<NVIDIAApiService> {
   private final Provider<OkHttpClient> clientProvider;
 
   private final Provider<SettingsRepository> settingsRepositoryProvider;
 
-  public NetworkModule_ProvideNvidiaApiServiceFactory(Provider<OkHttpClient> clientProvider,
+  private NetworkModule_ProvideNvidiaApiServiceFactory(Provider<OkHttpClient> clientProvider,
       Provider<SettingsRepository> settingsRepositoryProvider) {
     this.clientProvider = clientProvider;
     this.settingsRepositoryProvider = settingsRepositoryProvider;

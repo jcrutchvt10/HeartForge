@@ -13,8 +13,10 @@ import javax.annotation.processing.Generated;
     originatingRoot = "com.heartforge.app.HeartForgeApplication",
     originatingRootPackage = "com.heartforge.app",
     rootAnnotation = HiltAndroidApp.class,
+    rootComponentPackage = "dagger.hilt.components",
     rootSimpleNames = "HeartForgeApplication",
-    originatingRootSimpleNames = "HeartForgeApplication"
+    originatingRootSimpleNames = "HeartForgeApplication",
+    rootComponentSimpleNames = "SingletonComponent"
 )
 @Generated("dagger.hilt.processor.internal.root.AggregatedRootGenerator")
 public class _com_heartforge_app_HeartForgeApplication {

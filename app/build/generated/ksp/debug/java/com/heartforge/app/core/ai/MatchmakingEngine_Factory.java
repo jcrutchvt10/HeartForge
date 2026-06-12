@@ -2,10 +2,10 @@ package com.heartforge.app.core.ai;
 
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -20,12 +20,13 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class MatchmakingEngine_Factory implements Factory<MatchmakingEngine> {
   private final Provider<AIProvider> aiProvider;
 
-  public MatchmakingEngine_Factory(Provider<AIProvider> aiProvider) {
+  private MatchmakingEngine_Factory(Provider<AIProvider> aiProvider) {
     this.aiProvider = aiProvider;
   }
 

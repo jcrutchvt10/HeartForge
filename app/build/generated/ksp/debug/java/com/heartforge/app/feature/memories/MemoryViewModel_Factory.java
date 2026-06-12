@@ -6,10 +6,10 @@ import com.heartforge.app.core.repository.CharacterRepository;
 import com.heartforge.app.core.repository.MemoryRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -24,7 +24,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class MemoryViewModel_Factory implements Factory<MemoryViewModel> {
   private final Provider<CharacterRepository> characterRepositoryProvider;
@@ -35,9 +36,14 @@ public final class MemoryViewModel_Factory implements Factory<MemoryViewModel> {
 
   private final Provider<SavedStateHandle> savedStateHandleProvider;
 
+<<<<<<< Updated upstream
   public MemoryViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
       Provider<MemoryDao> memoryDaoProvider, Provider<MemoryRepository> memoryRepositoryProvider,
       Provider<SavedStateHandle> savedStateHandleProvider) {
+=======
+  private MemoryViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
+      Provider<MemoryDao> memoryDaoProvider, Provider<SavedStateHandle> savedStateHandleProvider) {
+>>>>>>> Stashed changes
     this.characterRepositoryProvider = characterRepositoryProvider;
     this.memoryDaoProvider = memoryDaoProvider;
     this.memoryRepositoryProvider = memoryRepositoryProvider;

@@ -3,10 +3,10 @@ package com.heartforge.app.core.repository;
 import com.heartforge.app.core.database.CharacterDao;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -21,12 +21,13 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class CharacterRepositoryImpl_Factory implements Factory<CharacterRepositoryImpl> {
   private final Provider<CharacterDao> characterDaoProvider;
 
-  public CharacterRepositoryImpl_Factory(Provider<CharacterDao> characterDaoProvider) {
+  private CharacterRepositoryImpl_Factory(Provider<CharacterDao> characterDaoProvider) {
     this.characterDaoProvider = characterDaoProvider;
   }
 

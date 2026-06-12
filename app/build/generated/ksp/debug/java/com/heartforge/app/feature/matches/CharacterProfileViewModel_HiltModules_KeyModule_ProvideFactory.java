@@ -19,7 +19,8 @@ import javax.annotation.processing.Generated;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class CharacterProfileViewModel_HiltModules_KeyModule_ProvideFactory implements Factory<Boolean> {
   @Override
@@ -36,6 +37,6 @@ public final class CharacterProfileViewModel_HiltModules_KeyModule_ProvideFactor
   }
 
   private static final class InstanceHolder {
-    private static final CharacterProfileViewModel_HiltModules_KeyModule_ProvideFactory INSTANCE = new CharacterProfileViewModel_HiltModules_KeyModule_ProvideFactory();
+    static final CharacterProfileViewModel_HiltModules_KeyModule_ProvideFactory INSTANCE = new CharacterProfileViewModel_HiltModules_KeyModule_ProvideFactory();
   }
 }

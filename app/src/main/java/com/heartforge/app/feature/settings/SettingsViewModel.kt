@@ -32,7 +32,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
+            combine<Any?, SettingsState>(
                 settingsRepository.endpoint,
                 settingsRepository.chatModel,
                 settingsRepository.imageModel,

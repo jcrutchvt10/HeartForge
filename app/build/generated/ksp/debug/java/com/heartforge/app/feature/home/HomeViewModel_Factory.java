@@ -5,10 +5,10 @@ import com.heartforge.app.core.repository.CharacterRepository;
 import com.heartforge.app.core.util.DataInitializer;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -23,7 +23,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
   private final Provider<CharacterRepository> characterRepositoryProvider;
@@ -32,7 +33,7 @@ public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
 
   private final Provider<MemoryDao> memoryDaoProvider;
 
-  public HomeViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
+  private HomeViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
       Provider<DataInitializer> dataInitializerProvider, Provider<MemoryDao> memoryDaoProvider) {
     this.characterRepositoryProvider = characterRepositoryProvider;
     this.dataInitializerProvider = dataInitializerProvider;

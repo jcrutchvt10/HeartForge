@@ -1,10 +1,14 @@
 {
     "logs": [
         {
-            "outputFile": "com.heartforge.app-mergeDebugResources-66:/values-v30/values-v30.xml",
+            "outputFile": "com.heartforge.app-mergeDebugResources-63:/values-v30/values-v30.xml",
             "map": [
                 {
+<<<<<<< Updated upstream
                     "source": "C:\\Users\\jason\\.gradle\\caches\\8.13\\transforms\\405296883e08dcad07767cf054acf2e9\\transformed\\jetified-material3-release\\res\\values-v30\\values-v30.xml",
+=======
+                    "source": "C:\\Users\\jason\\.gradle\\caches\\9.5.0\\transforms\\b2a2e6c7eacf7e79bb9474b58d06b28c\\transformed\\jetified-material3-release\\res\\values-v30\\values-v30.xml",
+>>>>>>> Stashed changes
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

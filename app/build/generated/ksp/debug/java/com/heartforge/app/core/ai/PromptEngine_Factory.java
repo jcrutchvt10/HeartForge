@@ -19,7 +19,8 @@ import javax.annotation.processing.Generated;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class PromptEngine_Factory implements Factory<PromptEngine> {
   @Override
@@ -36,6 +37,6 @@ public final class PromptEngine_Factory implements Factory<PromptEngine> {
   }
 
   private static final class InstanceHolder {
-    private static final PromptEngine_Factory INSTANCE = new PromptEngine_Factory();
+    static final PromptEngine_Factory INSTANCE = new PromptEngine_Factory();
   }
 }

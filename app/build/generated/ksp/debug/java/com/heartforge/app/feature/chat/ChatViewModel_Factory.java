@@ -7,10 +7,10 @@ import com.heartforge.app.core.repository.RelationshipRepository;
 import com.heartforge.app.core.repository.StoryRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -25,7 +25,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class ChatViewModel_Factory implements Factory<ChatViewModel> {
   private final Provider<ChatRepository> chatRepositoryProvider;
@@ -38,7 +39,7 @@ public final class ChatViewModel_Factory implements Factory<ChatViewModel> {
 
   private final Provider<SavedStateHandle> savedStateHandleProvider;
 
-  public ChatViewModel_Factory(Provider<ChatRepository> chatRepositoryProvider,
+  private ChatViewModel_Factory(Provider<ChatRepository> chatRepositoryProvider,
       Provider<CharacterRepository> characterRepositoryProvider,
       Provider<RelationshipRepository> relationshipRepositoryProvider,
       Provider<StoryRepository> storyRepositoryProvider,

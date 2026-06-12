@@ -5,10 +5,10 @@ import com.heartforge.app.core.database.HeartForgeDatabase;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata("dagger.hilt.android.qualifiers.ApplicationContext")
@@ -23,12 +23,13 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class DatabaseModule_ProvideDatabaseFactory implements Factory<HeartForgeDatabase> {
   private final Provider<Context> contextProvider;
 
-  public DatabaseModule_ProvideDatabaseFactory(Provider<Context> contextProvider) {
+  private DatabaseModule_ProvideDatabaseFactory(Provider<Context> contextProvider) {
     this.contextProvider = contextProvider;
   }
 

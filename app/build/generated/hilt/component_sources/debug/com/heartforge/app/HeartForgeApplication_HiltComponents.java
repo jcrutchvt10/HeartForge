@@ -46,7 +46,7 @@ import dagger.hilt.android.internal.managers.FragmentComponentManager;
 import dagger.hilt.android.internal.managers.HiltWrapper_ActivityRetainedComponentManager_ActivityRetainedComponentBuilderEntryPoint;
 import dagger.hilt.android.internal.managers.HiltWrapper_ActivityRetainedComponentManager_ActivityRetainedLifecycleEntryPoint;
 import dagger.hilt.android.internal.managers.HiltWrapper_ActivityRetainedComponentManager_LifecycleModule;
-import dagger.hilt.android.internal.managers.HiltWrapper_SavedStateHandleModule;
+import dagger.hilt.android.internal.managers.HiltWrapper_ActivitySavedStateHandleModule;
 import dagger.hilt.android.internal.managers.ServiceComponentManager;
 import dagger.hilt.android.internal.managers.ViewComponentManager;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
@@ -151,6 +151,7 @@ public final class HeartForgeApplication_HiltComponents {
       }
   )
   @Singleton
+  @jakarta.inject.Singleton
   public abstract static class SingletonC implements HeartForgeApplication_GeneratedInjector,
       FragmentGetContextFix.FragmentGetContextFixEntryPoint,
       HiltWrapper_ActivityRetainedComponentManager_ActivityRetainedComponentBuilderEntryPoint,
@@ -178,7 +179,7 @@ public final class HeartForgeApplication_HiltComponents {
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
-          HiltWrapper_SavedStateHandleModule.class,
+          HiltWrapper_ActivitySavedStateHandleModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
           MatchViewModel_HiltModules.KeyModule.class,
           MemoryViewModel_HiltModules.KeyModule.class,

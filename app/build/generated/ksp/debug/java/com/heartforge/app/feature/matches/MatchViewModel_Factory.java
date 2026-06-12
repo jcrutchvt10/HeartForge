@@ -6,10 +6,10 @@ import com.heartforge.app.core.repository.UserProfileRepository;
 import com.heartforge.app.core.util.DataInitializer;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -24,7 +24,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class MatchViewModel_Factory implements Factory<MatchViewModel> {
   private final Provider<CharacterRepository> characterRepositoryProvider;
@@ -33,9 +34,13 @@ public final class MatchViewModel_Factory implements Factory<MatchViewModel> {
 
   private final Provider<DataInitializer> dataInitializerProvider;
 
+<<<<<<< Updated upstream
   private final Provider<UserProfileRepository> userProfileRepositoryProvider;
 
   public MatchViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
+=======
+  private MatchViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
+>>>>>>> Stashed changes
       Provider<MatchmakingEngine> matchmakingEngineProvider,
       Provider<DataInitializer> dataInitializerProvider,
       Provider<UserProfileRepository> userProfileRepositoryProvider) {

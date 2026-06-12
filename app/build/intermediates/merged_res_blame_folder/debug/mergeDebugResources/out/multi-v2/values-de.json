@@ -1,10 +1,14 @@
 {
     "logs": [
         {
-            "outputFile": "com.heartforge.app-mergeDebugResources-66:/values-de/values-de.xml",
+            "outputFile": "com.heartforge.app-mergeDebugResources-63:/values-de/values-de.xml",
             "map": [
                 {
+<<<<<<< Updated upstream
                     "source": "C:\\Users\\jason\\.gradle\\caches\\8.13\\transforms\\e2e65ff86ddaf9a886cf23849e9f3b52\\transformed\\core-1.13.1\\res\\values-de\\values-de.xml",
+=======
+                    "source": "C:\\Users\\jason\\.gradle\\caches\\9.5.0\\transforms\\9db7c1c335cb4b80826aeee77682d808\\transformed\\core-1.13.1\\res\\values-de\\values-de.xml",
+>>>>>>> Stashed changes
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -21,7 +25,11 @@
                     }
                 },
                 {
+<<<<<<< Updated upstream
                     "source": "C:\\Users\\jason\\.gradle\\caches\\8.13\\transforms\\229cc923cd168c6f6f750833bf1b79ea\\transformed\\jetified-ui-release\\res\\values-de\\values-de.xml",
+=======
+                    "source": "C:\\Users\\jason\\.gradle\\caches\\9.5.0\\transforms\\bf83694c59498eb56ea34a05b9c4bc73\\transformed\\jetified-ui-release\\res\\values-de\\values-de.xml",
+>>>>>>> Stashed changes
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -38,6 +46,7 @@
                     }
                 },
                 {
+<<<<<<< Updated upstream
                     "source": "C:\\Users\\jason\\.gradle\\caches\\8.13\\transforms\\126e33f90d8bad7ec01c2bb1490fa88f\\transformed\\jetified-foundation-release\\res\\values-de\\values-de.xml",
                     "from": {
                         "startLines": "2,3",
@@ -56,6 +65,9 @@
                 },
                 {
                     "source": "C:\\Users\\jason\\.gradle\\caches\\8.13\\transforms\\405296883e08dcad07767cf054acf2e9\\transformed\\jetified-material3-release\\res\\values-de\\values-de.xml",
+=======
+                    "source": "C:\\Users\\jason\\.gradle\\caches\\9.5.0\\transforms\\b2a2e6c7eacf7e79bb9474b58d06b28c\\transformed\\jetified-material3-release\\res\\values-de\\values-de.xml",
+>>>>>>> Stashed changes
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -70,6 +82,26 @@
                         "endColumns": "130,128,108,128,109,94,111,143,117,155,84,104,94,101,117,125,109,135,136,134,178,127,122,127,124,95,97,119,128,99,104,101,140,147,105,101,79,95,94,119,85,88,100,79,85,99,105,94,100,87,108,100,103,137,88,104,95",
                         "endOffsets": "1608,1737,1846,1975,2085,2180,2292,2436,2554,2710,2795,2900,2995,3097,3215,3341,3451,3587,3724,3859,4038,4166,4289,4417,4542,4638,4736,4856,4985,5085,5190,5292,5433,5581,5687,5789,5869,5965,6060,6180,6266,6355,6456,6536,6622,6722,6828,6923,7024,7112,7221,7322,7426,7564,7653,7758,7854"
                     }
+<<<<<<< Updated upstream
+=======
+                },
+                {
+                    "source": "C:\\Users\\jason\\.gradle\\caches\\9.5.0\\transforms\\b91da34063a99a3bf05d098168c8beb7\\transformed\\jetified-foundation-release\\res\\values-de\\values-de.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,142",
+                        "endColumns": "86,89",
+                        "endOffsets": "137,227"
+                    },
+                    "to": {
+                        "startLines": "85,86",
+                        "startColumns": "4,4",
+                        "startOffsets": "8859,8946",
+                        "endColumns": "86,89",
+                        "endOffsets": "8941,9031"
+                    }
+>>>>>>> Stashed changes
                 }
             ]
         }
