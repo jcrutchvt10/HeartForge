@@ -12,5 +12,10 @@ interface ChatRepository {
         storyContext: String? = null
     )
 
+    suspend fun sendImage(
+        characterId: String,
+        base64: String
+    )
+
     suspend fun clearHistory(characterId: String)
 }

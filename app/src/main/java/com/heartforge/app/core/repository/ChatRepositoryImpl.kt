@@ -61,15 +61,21 @@ class ChatRepositoryImpl @Inject constructor(
 
         // 2. Detect Photo Intent
         if (isPhotoRequest(content)) {
-            val scene = determineScene(content)
             scope.launch {
-                val imageResult = imageEngine.generateContextualImage(character, scene)
+                val sceneDescription = generateSceneDescription(character, userProfile, relationship, content)
+                val imageResult = imageEngine.generateContextualImage(
+                    character = character,
+                    sceneType = SceneType.Selfie,
+                    relationship = relationship,
+                    customContext = sceneDescription
+                )
+                
                 if (imageResult is ImageResult.Success) {
                     val photoMessage = ChatMessage(
                         id = UUID.randomUUID().toString(),
                         characterId = characterId,
                         role = MessageRole.Assistant,
-                        content = "Here's a photo for you! 😉",
+                        content = "Just for you... $sceneDescription 😉",
                         imageUrl = imageResult.base64
                     )
                     messageDao.insertMessage(photoMessage.toEntity())
@@ -142,8 +148,81 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendImage(characterId: String, base64: String) {
+        val character = characterRepository.getCharacter(characterId) ?: return
+        
+        // 1. Save User's Photo Message
+        val userPhotoMessage = ChatMessage(
+            id = UUID.randomUUID().toString(),
+            characterId = characterId,
+            role = MessageRole.User,
+            content = "[Sent a photo]",
+            imageUrl = base64 
+        )
+        messageDao.insertMessage(userPhotoMessage.toEntity())
+
+        // 2. Analyze with Vision AI
+        val visionResult = aiProvider.analyzeImage(base64)
+        if (visionResult is AIResult.Success) {
+            val context = "The user just sent you a photo. Here is what you see: ${visionResult.content}. React to it in character."
+            
+            // 3. Generate Character Reaction
+            val aiPrompt = promptEngine.buildPrompt(
+                character = character,
+                userProfile = userProfileRepository.getProfile(),
+                relationship = relationshipRepository.getRelationship(characterId).first() ?: Relationship(characterId, 50, 20, 50, 30, 0, 10, 10, 20, 10),
+                relevantMemories = emptyList(),
+                conversationSummary = context,
+                recentMessages = emptyList(),
+                currentUserMessage = "Check out this photo I just took."
+            )
+
+            aiProvider.chat(aiPrompt, stream = false).collect { result ->
+                if (result is AIResult.Success) {
+                    val reactionMessage = ChatMessage(
+                        id = UUID.randomUUID().toString(),
+                        characterId = characterId,
+                        role = MessageRole.Assistant,
+                        content = result.content
+                    )
+                    messageDao.insertMessage(reactionMessage.toEntity())
+                }
+            }
+        }
+    }
+
     override suspend fun clearHistory(characterId: String) {
         messageDao.deleteMessagesForCharacter(characterId)
+    }
+
+    private suspend fun generateSceneDescription(
+        character: Character,
+        userProfile: UserProfile,
+        relationship: Relationship,
+        request: String
+    ): String {
+        val prompt = """
+            The user (${userProfile.nickname}) is asking for a photo from their AI boyfriend (${character.name}).
+            Request: "$request"
+            Relationship: Trust ${relationship.trust}%, Romance ${relationship.romance}%, Intimacy ${relationship.intimacy}%
+            
+            Describe a single, highly detailed, and seductive visual scene for an AI image generator.
+            Focus on the character's pose, clothing (or lack thereof), lighting, and mood.
+            The description should match the current intimacy level. 
+            Keep it under 60 words.
+            
+            Return ONLY the description.
+        """.trimIndent()
+
+        val messages = listOf(AIMessage("system", "You are a master of visual storytelling and erotic photography descriptions."), AIMessage("user", prompt))
+        
+        var description = "A seductive selfie showing his masculine features."
+        aiProvider.chat(messages, stream = false).collect { result ->
+            if (result is AIResult.Success) {
+                description = result.content.trim()
+            }
+        }
+        return description
     }
 
     private fun isPhotoRequest(content: String): Boolean {

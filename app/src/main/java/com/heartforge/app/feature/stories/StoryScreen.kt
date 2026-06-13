@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -71,6 +72,13 @@ fun StoryScreen(
                 contentPadding = PaddingValues(24.dp),
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
+                item {
+                    SecretArcGenerator(
+                        isGenerating = state.isGeneratingSecret,
+                        onClick = { viewModel.generateSecretArc() }
+                    )
+                }
+                
                 items(state.availableArcs) { arc ->
                     StoryArcItem(
                         arc = arc,
@@ -83,6 +91,46 @@ fun StoryScreen(
                             )
                         }
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SecretArcGenerator(
+    isGenerating: Boolean,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = RoseRed.copy(alpha = 0.1f)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, RoseRed.copy(alpha = 0.3f))
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = RoseRed, modifier = Modifier.size(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Unlock a Midnight Secret", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "Let AI craft a unique 3-chapter story based on your shared memories.",
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            Button(
+                onClick = onClick,
+                enabled = !isGenerating,
+                colors = ButtonDefaults.buttonColors(containerColor = RoseRed),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (isGenerating) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                } else {
+                    Text("Generate Custom Story")
                 }
             }
         }

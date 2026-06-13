@@ -138,6 +138,35 @@ fun SettingsScreen(
                     onCheckedChange = { viewModel.updateStreaming(it) }
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Text("Debug Tools", style = MaterialTheme.typography.titleMedium, color = RoseRed)
+            
+            Button(
+                onClick = { viewModel.testNudge() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isTestingNudge,
+                colors = ButtonDefaults.buttonColors(containerColor = RoseRed)
+            ) {
+                if (state.isTestingNudge) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = androidx.compose.ui.graphics.Color.White)
+                } else {
+                    Text("Test Proactive Nudge (Notification)")
+                }
+            }
+
+            Button(
+                onClick = { viewModel.logAvailableModels() },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = RoseRed.copy(alpha = 0.5f))
+            ) {
+                Text("Log Available Models to Logcat")
+            }
+            Text(
+                "Triggers an immediate AI text notification from a random partner.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

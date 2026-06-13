@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.heartforge.app.feature.chat.ChatScreen
 import com.heartforge.app.feature.chat.ChatListScreen
+import com.heartforge.app.feature.chronicle.ChronicleScreen
 import com.heartforge.app.feature.creator.CreatorScreen
 import com.heartforge.app.feature.gallery.GalleryScreen
 import com.heartforge.app.feature.home.HomeScreen
@@ -60,7 +61,20 @@ fun AppNavigation(
             ChatListScreen(navController)
         }
 
-        composable(Destination.Gallery.route) {
+        composable(
+            route = Destination.Gallery.route,
+            arguments = listOf(
+                navArgument("characterId") { 
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("autoGenerate") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) {
             GalleryScreen(navController)
         }
 
@@ -108,6 +122,13 @@ fun AppNavigation(
             arguments = listOf(navArgument("characterId") { type = NavType.StringType })
         ) {
             CharacterProfileScreen(navController)
+        }
+
+        composable(
+            route = Destination.Chronicles.route,
+            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
+        ) {
+            ChronicleScreen(navController)
         }
     }
 }

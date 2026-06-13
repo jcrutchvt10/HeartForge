@@ -20,6 +20,9 @@ interface MessageDao {
     @Query("DELETE FROM messages WHERE characterId = :characterId")
     suspend fun deleteMessagesForCharacter(characterId: String)
     
+    @Query("DELETE FROM messages")
+    suspend fun deleteAll()
+
     @Query("SELECT DISTINCT characterId FROM messages")
     suspend fun getCharacterIdsWithMessages(): List<String>
 }

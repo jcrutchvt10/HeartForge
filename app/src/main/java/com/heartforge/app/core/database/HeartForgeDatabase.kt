@@ -10,9 +10,11 @@ import androidx.room.TypeConverters
         RelationshipEntity::class,
         MemoryEntity::class,
         MessageEntity::class,
-        StoryProgressEntity::class
+        StoryProgressEntity::class,
+        DynamicStoryEntity::class,
+        LoveLetterEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

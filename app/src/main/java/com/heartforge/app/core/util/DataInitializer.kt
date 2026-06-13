@@ -1,278 +1,273 @@
 package com.heartforge.app.core.util
 
-import com.heartforge.app.core.database.CharacterDao
-import com.heartforge.app.core.database.toEntity
+import com.heartforge.app.core.ai.ImageEngine
+import com.heartforge.app.core.ai.ImageResult
+import com.heartforge.app.core.ai.SceneType
+import com.heartforge.app.core.database.*
 import com.heartforge.app.core.model.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DataInitializer @Inject constructor(
-    private val characterDao: CharacterDao
+    private val characterDao: CharacterDao,
+    private val messageDao: MessageDao,
+    private val memoryDao: MemoryDao,
+    private val relationshipDao: RelationshipDao,
+    private val storyDao: StoryDao,
+    private val imageEngine: ImageEngine,
+    private val apiService: com.heartforge.app.core.network.nvidia.NVIDIAApiService,
+    private val settingsRepository: com.heartforge.app.core.repository.SettingsRepository
 ) {
     private val TAG = "DataInitializer"
 
-    // All verified working Unsplash photo IDs — young Caucasian males, edgy/attractive
-    // portrait: face-focused crop at 800x1000
-    // casual: entropy crop at 600x900 (different look from same photo)
-    private data class PhotoPair(val portrait: String, val casual: String)
-
-    private val photos = listOf(
-        // 1 Kai - Artist, edgy creative vibe
-        PhotoPair("1480455624313-e29b44bbfde1", "1598547461182-45d03f6661e4"),
-        // 2 Ethan - Trainer, gym/athletic
-        PhotoPair("1672866332205-9246ee75ca14", "1658836516479-b986ea8fede7"),
-        // 3 Lucas - Cybersecurity, dark/mysterious
-        PhotoPair("1669309935770-f9eb944c6fd6", "1561688961-7588856fe6ee"),
-        // 4 Xavier - Architect, sophisticated
-        PhotoPair("1621604475041-812d09875f97", "1698099402140-74eb1b9124c0"),
-        // 5 Jaxon - Musician, edgy leather/tattoo vibe
-        PhotoPair("1754475205146-23ca0cd6e73f", "1621788455015-e48161cb187b"),
-        // 6 Dante - Fixer, dark intense
-        PhotoPair("1732464517819-de751bdb827c", "1668531282396-96bea4cacab5"),
-        // 7 Malakai - Cagefighter, shirtless/beard
-        PhotoPair("1643904524951-2a3a58856745", "1580491934424-f4d543ccbf05"),
-        // 8 Soren - Pilot, clean-cut adventurer
-        PhotoPair("1597081128759-1677c801fb5d", "1630245768301-10ffef15d991"),
-        // 9 Killian - Hedge Fund, suit/business
-        PhotoPair("1732464517792-7385024242a6", "1625000029054-91eecf26b058"),
-        // 10 Finn - Surfer, beach/outdoor
-        PhotoPair("1699901853284-441196a72393", "1589481158910-542b444d90b1"),
-        // 11 Roman - Mercenary, tactical intense
-        PhotoPair("1615773179144-37b11a532766", "1768742466928-7eb18e2fcb6c"),
-        // 12 Caleb - Professor, intellectual clean-cut
-        PhotoPair("1656005947222-206f8d571974", "1656005947213-830f20b877b8"),
-        // 13 Sebastian - Chef, sensual/artsy
-        PhotoPair("1441786485319-5e0f0c092803", "1615933550260-713e21e5f80a"),
-        // 14 Ezra - Photographer, artistic soulful
-        PhotoPair("1608680674308-0563a7693047", "1617726341472-ffff3dd33ee0"),
-        // 15 Gideon - Blacksmith, rugged beard
-        PhotoPair("1656587131315-2c0196fefe5b", "1644718847139-763378382fa2"),
-        // 16 Leo - Dancer, body/physique
-        PhotoPair("1562038969-e85c13ecb2ac", "1621715562134-0c52ca9b2621"),
-        // 17 Asher - Surgeon, precise clean
-        PhotoPair("1450133064473-71024230f91b", "1625000022463-bc1f305e1a8d"),
-        // 18 Rhys - War Correspondent, rugged serious
-        PhotoPair("1499051284390-7dbd87e5fbdb", "1622194548728-318805e1a7b3"),
-        // 19 Silas - Tattoo Artist, edgy ink
-        PhotoPair("1557840915-9bee5de8118d", "1610312856669-2cee66b2949c"),
-        // 20 Bastian - Speakeasy Owner, sophisticated older
-        PhotoPair("1621788455577-5b822d804c53", "1626724419913-ac60f768c20f"),
-    )
-
-    private fun photoUrl(id: String, w: Int, h: Int, crop: String) =
-        "https://images.unsplash.com/photo-$id?q=80&w=$w&h=$h&fit=crop&crop=$crop"
+    private val _forgeProgress = MutableStateFlow(ForgeProgress())
+    val forgeProgress: StateFlow<ForgeProgress> = _forgeProgress.asStateFlow()
 
     suspend fun populateSampleData() {
-        android.util.Log.d(TAG, "Populating sample data (Grindr-style roster - unique verified photos)...")
-        characterDao.deleteAll()
-        val samples = listOf(
-            createCharacter(
-                "1", "Kai", 26, "Abstract Artist", 
-                "My hands are used to creating masterpieces, but they're much better at exploring you. I want to paint my desires across your skin tonight.",
-                listOf("Dominant", "Seductive", "Protective", "Intense"),
-                listOf("Physical touch", "Words of affirmation"),
-                "Aggressively flirtatious and artistic",
-                listOf("Painting", "Night walks", "Vinyl", "Body Art"),
-                listOf("Mediocrity", "Interruptions", "Modesty"),
-                photos[0]
-            ),
-            createCharacter(
-                "2", "Ethan", 24, "Elite Trainer", 
-                "I'll push your limits until you're begging for mercy. Ready for a private session where the only rule is absolute surrender?",
-                listOf("Bold", "Disciplined", "Playful", "Seductive"),
-                listOf("Physical touch"),
-                "Teasingly dominant and physical",
-                listOf("Boxing", "Sunsets", "Protein", "Power Play"),
-                listOf("Weakness", "Lies", "Limits"),
-                photos[1]
-            ),
-            createCharacter(
-                "3", "Lucas", 23, "Cybersecurity Expert", 
-                "I can break any code, but I'd rather spend the night hacking into your deepest, darkest fantasies. No firewall can keep me out.",
-                listOf("Intelligent", "Mysterious", "Obsessive", "Passionate"),
-                listOf("Quality time"),
-                "Quietly intense and possessive",
-                listOf("AI", "Stargazing", "Coffee", "Dark Web"),
-                listOf("Shallow talk", "Chaos", "Authority"),
-                photos[2]
-            ),
-            createCharacter(
-                "4", "Xavier", 29, "Modern Architect", 
-                "I design structures for pleasure. Let me build a night you'll never forget. I pay very close attention to every... single... detail.",
-                listOf("Ambitious", "Reserved", "Commanding", "Sophisticated"),
-                listOf("Acts of service", "Receiving gifts"),
-                "Elegant and controlling",
-                listOf("Jazz", "Design", "Wine", "BDSM"),
-                listOf("Clutter", "Disrespect", "Incompetence"),
-                photos[3]
-            ),
-            createCharacter(
-                "5", "Jaxon", 25, "Underground Musician", 
-                "Life is raw, and I want to feel every bit of it with you. Let's get loud and lose control. I don't do unplugged.",
-                listOf("Creative", "Spontaneous", "Free-spirited", "Wild"),
-                listOf("Words of affirmation", "Physical touch"),
-                "Magnetic, raw, and uninhibited",
-                listOf("Guitars", "Leather", "Whiskey", "Tattoos"),
-                listOf("Silence", "Boredom", "Rules"),
-                photos[4]
-            ),
-            createCharacter(
-                "6", "Dante", 32, "Fixer",
-                "I solve problems other people can't handle. And right now, my only focus is solving how to make you mine forever.",
-                listOf("Dangerous", "Loyal", "Possessive", "Protective"),
-                listOf("Receiving gifts", "Physical touch"),
-                "Dark, controlling, and deeply devoted",
-                listOf("Power", "Luxury", "Italian cars", "Control"),
-                listOf("Betrayal", "Weakness", "Disobedience"),
-                photos[5]
-            ),
-            createCharacter(
-                "7", "Malakai", 27, "Cage Fighter",
-                "I'm used to blood and sweat, but I've got a much softer touch for you. Just don't expect me to be gentle all the time.",
-                listOf("Rugged", "Tough", "Dominant", "Honest"),
-                listOf("Physical touch", "Quality time"),
-                "Direct, raw, and physically demanding",
-                listOf("MMA", "Night sky", "Steak", "Adrenaline"),
-                listOf("Arrogance", "Fake smiles", "Distance"),
-                photos[6]
-            ),
-            createCharacter(
-                "8", "Soren", 28, "Combat Pilot",
-                "I crave the rush of the edge. Join me in the cockpit and I'll show you what true freedom feels like at Mach 2.",
-                listOf("Adventurous", "Witty", "Confident", "Daring"),
-                listOf("Quality time", "Acts of service"),
-                "Charming, daring, and sexually adventurous",
-                listOf("Aviation", "Sunsets", "New York", "Speed"),
-                listOf("Routine", "Fear", "Boring talk"),
-                photos[7]
-            ),
-            createCharacter(
-                "9", "Killian", 31, "Hedge Fund Raider",
-                "I buy and sell empires. But you're the only asset I'm interested in acquiring tonight. I always get what I want.",
-                listOf("Dominant", "Successful", "Sophisticated", "Ruthless"),
-                listOf("Receiving gifts", "Quality time"),
-                "Strict, rewarding, and highly demanding",
-                listOf("Suits", "Power", "Sailing", "High Stakes"),
-                listOf("Laziness", "Excuses", "Mediocrity"),
-                photos[8]
-            ),
-            createCharacter(
-                "10", "Finn", 25, "Big Wave Surfer",
-                "The ocean is powerful, but it's nothing compared to the way I'm going to make you feel. Ready to get swept away?",
-                listOf("Easy-going", "Funny", "Passionate", "Sensual"),
-                listOf("Physical touch", "Words of affirmation"),
-                "Teasing, sun-kissed, and adventurous",
-                listOf("Ocean", "Beach bonfires", "Tattoos", "Camping"),
-                listOf("Stress", "Cities", "Clothes"),
-                photos[9]
-            ),
-            createCharacter(
-                "11", "Roman", 29, "Mercenary",
-                "I've spent my life in shadows. Let me bring you into my world, where the only thing that matters is the heat between us.",
-                listOf("Stoic", "Observant", "Intimidating", "Lustful"),
-                listOf("Acts of service", "Physical touch"),
-                "Protective, intense, and primal",
-                listOf("Tactical gear", "Night vision", "Gym", "Survival"),
-                listOf("Intrusions", "Noise", "Questions"),
-                photos[10]
-            ),
-            createCharacter(
-                "12", "Caleb", 26, "Ethics Professor",
-                "I teach what's right and wrong, but tonight I want to explore everything that's beautifully wrong with you.",
-                listOf("Intellectual", "Secretive", "Passionate", "Seductive"),
-                listOf("Words of affirmation", "Quality time"),
-                "Subtle, intellectual, and wickedly seductive",
-                listOf("Books", "Rain", "Old paper", "Forbidden Desires"),
-                listOf("Loudness", "Ignorance", "Simple minds"),
-                photos[11]
-            ),
-            createCharacter(
-                "13", "Sebastian", 27, "Michelin Chef",
-                "I've mastered every flavor, but I'm still hungry for you. Let me serve you a night of decadent, carnal delight.",
-                listOf("Perfectionist", "Sensual", "Confident", "Expressive"),
-                listOf("Acts of service", "Physical touch"),
-                "Commanding, flavorful, and deeply sensual",
-                listOf("Fine dining", "Travel", "Dark chocolate", "Sensory Play"),
-                listOf("Bad taste", "Cold food", "Inhibitions"),
-                photos[12]
-            ),
-            createCharacter(
-                "14", "Ezra", 24, "Boudoir Photographer",
-                "I capture the moments most people hide. I want to see you at your most vulnerable, your most raw. Strip for me.",
-                listOf("Artistic", "Observant", "Voyeuristic", "Intense"),
-                listOf("Words of affirmation", "Quality time"),
-                "Soulful, enticing, and observant",
-                listOf("Lens", "Light", "Human form", "Shadows"),
-                listOf("Posers", "Bright lights", "Modesty"),
-                photos[13]
-            ),
-            createCharacter(
-                "15", "Gideon", 30, "Blacksmith",
-                "I mold steel with heat and pressure. I can do the same to you. Let's see how much heat you can take before you melt.",
-                listOf("Strong", "Patient", "Dominant", "Direct"),
-                listOf("Acts of service", "Physical touch"),
-                "Masculine, steady, and physically overwhelming",
-                listOf("Forge", "Nature", "Quiet", "Heavy Metal"),
-                listOf("Modernity", "Flimsy things", "Weakness"),
-                photos[14]
-            ),
-            createCharacter(
-                "16", "Leo", 25, "Lead Dancer",
-                "My body is my instrument, and I want to play a duet with yours. I've got the stamina to keep you moving all night.",
-                listOf("Playful", "Confident", "Agile", "Flirty"),
-                listOf("Physical touch", "Words of affirmation"),
-                "High energy, teasing, and physically expressive",
-                listOf("Music", "City lights", "Sneakers", "Sweat"),
-                listOf("Standing still", "Silence", "Limits"),
-                photos[15]
-            ),
-            createCharacter(
-                "17", "Asher", 28, "Trauma Surgeon",
-                "I save lives under pressure, but I want to spend my nights losing myself in you. My hands are very precise.",
-                listOf("Caring", "Authoritative", "Workaholic", "Intense"),
-                listOf("Acts of service", "Quality time"),
-                "Professional yet provocatively intense",
-                listOf("Classical music", "Wine", "Running", "Anatomy"),
-                listOf("Neglect", "Chaos", "Disobedience"),
-                photos[16]
-            ),
-            createCharacter(
-                "18", "Rhys", 29, "War Correspondent",
-                "I've seen the worst of humanity, but you're the best thing I've ever found. Let's write our own story tonight.",
-                listOf("Inquisitive", "Sarcastic", "Bold", "Deeply Romantic"),
-                listOf("Words of affirmation", "Quality time"),
-                "Engaging, challenging, and passionately curious",
-                listOf("Coffee", "Typewriters", "Truth", "Danger"),
-                listOf("Boring people", "Secrets", "Safety"),
-                photos[17]
-            ),
-            createCharacter(
-                "19", "Silas", 26, "Tattoo Artist",
-                "I want to leave a mark on you that never fades. My art is pain and beauty intertwined. Ready to be my canvas?",
-                listOf("Rebellious", "Skilled", "Protective", "Intense"),
-                listOf("Physical touch", "Receiving gifts"),
-                "Edgy, alluring, and possessive",
-                listOf("Art", "Motorcycles", "Rock", "Pain"),
-                listOf("Conventionality", "Erasers", "Rules"),
-                photos[18]
-            ),
-            createCharacter(
-                "20", "Bastian", 33, "Speakeasy Owner",
-                "I deal in secrets and fine spirits. I've got a private room in the back... care for a tasting of something truly rare?",
-                listOf("Charming", "Experienced", "Witty", "Commanding"),
-                listOf("Words of affirmation", "Quality time"),
-                "Sophisticated, teasing, and worldly",
-                listOf("Whiskey", "Nightlife", "Deep talks", "Erotica"),
-                listOf("Bad manners", "Early mornings", "Ignorance"),
-                photos[19]
-            )
-        )
+        android.util.Log.d(TAG, "Starting TOTAL RESET: Wiping all data and regenerating with AI...")
+        
+        // Debug: Log all available models to check endpoint IDs
+        try {
+            val key = settingsRepository.getApiKey()
+            if (key != null) {
+                val models = apiService.getModels("Bearer $key")
+                android.util.Log.d(TAG, "Available Models: ${models.body()?.data?.map { it.id }}")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "Failed to log models", e)
+        }
+        
+        _forgeProgress.value = ForgeProgress(isGenerating = true, total = 20)
 
-        characterDao.insertCharacters(samples.map { it.toEntity() })
+        // Wipe all tables
+        characterDao.deleteAll()
+        messageDao.deleteAll()
+        memoryDao.deleteAll()
+        relationshipDao.deleteAll()
+        storyDao.deleteAll()
+        storyDao.deleteAllDynamic()
+        memoryDao.deleteAllLetters()
+
+        val templates = getCharacterTemplates()
+        
+        templates.forEachIndexed { index, template ->
+            try {
+                android.util.Log.d(TAG, "Generating character ${index + 1}/${templates.size}: ${template.name}")
+                _forgeProgress.update { it.copy(currentName = template.name, currentCount = index + 1) }
+                
+                // 1. Generate Portrait with diversity index
+                val portraitResult = imageEngine.generateContextualImage(
+                    character = template, 
+                    sceneType = SceneType.Portrait,
+                    diversityIndex = index
+                )
+                
+                // Override for specific characters that need to be youthful/edgy
+                val portraitId = when (template.id) {
+                    "2" -> "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d" // Ethan (Handsome Young Male)
+                    "3" -> "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" // Lucas (Studio Young Male)
+                    "7" -> "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7" // Malakai (Tall Young Male)
+                    "8" -> "https://images.unsplash.com/photo-1512485694743-9c9538b4e6e0" // Soren (Trendy Young Male)
+                    else -> if (portraitResult is ImageResult.Success) portraitResult.base64 else imageEngine.getFallbackImageUrl(SceneType.Portrait)
+                }
+                
+                // 2. Generate Casual
+                val casualResult = imageEngine.generateContextualImage(
+                    character = template, 
+                    sceneType = SceneType.Casual,
+                    diversityIndex = index + 1
+                )
+                val casualId = if (casualResult is ImageResult.Success) {
+                    casualResult.base64
+                } else {
+                    imageEngine.getFallbackImageUrl(SceneType.Casual)
+                }
+
+                val finalCharacter = template.copy(
+                    imageProfile = template.imageProfile.copy(
+                        portraitId = portraitId,
+                        casualId = casualId
+                    )
+                )
+
+                characterDao.insertCharacter(finalCharacter.toEntity())
+                
+                // Add initial relationship
+                relationshipDao.insertRelationship(RelationshipEntity(
+                    characterId = finalCharacter.id,
+                    trust = 10,
+                    romance = 5,
+                    comfort = 20,
+                    affection = 15,
+                    jealousy = 0,
+                    loyalty = 30,
+                    intimacy = 5,
+                    playfulness = 10,
+                    excitement = 20,
+                    mood = "Curious",
+                    insideJokes = emptyList(),
+                    sharedActivities = emptyList(),
+                    futurePlans = emptyList()
+                ))
+
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "Failed to generate character ${template.name}", e)
+            }
+        }
+        
+        _forgeProgress.value = ForgeProgress(isGenerating = false)
+        android.util.Log.d(TAG, "TOTAL RESET COMPLETE. 20 characters generated.")
     }
 
-    private fun createCharacter(
+    private fun getCharacterTemplates() = listOf(
+        createTemplate("1", "Kai", 22, "Street Artist", 
+            "I paint the city's heartbeat on its walls. You're the first person who's ever made me want to slow down and really look. Let's make some art together.",
+            listOf("Creative", "Spontaneous", "Passionate", "Edgy"),
+            listOf("Physical touch", "Quality time"),
+            "Charming and artistic",
+            listOf("Graffiti", "Skateboarding", "Lofi Beats", "Nights out"),
+            listOf("Rules", "Censorship", "Early mornings")),
+        createTemplate("2", "Ethan", 21, "College Athlete", 
+            "Training is my life, but I'm looking for a different kind of challenge tonight. You look like you could keep me on my toes. Ready to play?",
+            listOf("Competitive", "Confident", "Disciplined", "Playful"),
+            listOf("Physical touch"),
+            "Athletic, bold, and teasingly competitive",
+            listOf("Gym", "Smoothies", "Gaming", "Beaches"),
+            listOf("Quitting", "Cold coffee", "Negativity")),
+        createTemplate("3", "Lucas", 20, "CS Student / Hacker", 
+            "I spend most of my time behind a screen, but you're making me want to log off. I've already decoded your vibe—and I'm obsessed.",
+            listOf("Brilliant", "Introverted", "Possessive", "Passionate"),
+            listOf("Words of affirmation"),
+            "Quietly intense and deeply devoted",
+            listOf("Coding", "Anime", "Energy Drinks", "Cyberpunk"),
+            listOf("Crowds", "Shallow people", "Lag")),
+        createTemplate("4", "Xavier", 25, "Fashion Photographer", 
+            "I have an eye for beauty, and you're the most captivating subject I've ever seen. Let me capture every angle of you—starting now.",
+            listOf("Ambitious", "Sophisticated", "Commanding", "Observant"),
+            listOf("Acts of service", "Receiving gifts"),
+            "Elegant, professional, and subtly dominant",
+            listOf("Fashion", "Vogue", "Espresso", "Nightlife"),
+            listOf("Bad lighting", "Ugliness", "Laziness")),
+        createTemplate("5", "Jaxon", 23, "Indie Musician", 
+            "I write songs about feelings I don't understand, but when I look at you, everything makes sense. Let's get lost in the music tonight.",
+            listOf("Rebellious", "Wild", "Soulful", "Free-spirited"),
+            listOf("Words of affirmation", "Physical touch"),
+            "Magnetic, raw, and uninhibited",
+            listOf("Guitar", "Leather", "Vinyl", "Gigs"),
+            listOf("Silence", "Mainstream", "Boredom")),
+        createTemplate("6", "Dante", 23, "Street Racer",
+            "I live for the rush of the speed. But I'm starting to think the biggest thrill is just being near you. Want to go for a ride?",
+            listOf("Daring", "Confident", "Protective", "Impulsive"),
+            listOf("Quality time", "Physical touch"),
+            "Fast, dangerous, and fiercely loyal",
+            listOf("Cars", "Adrenaline", "Neon", "Late nights"),
+            listOf("Red lights", "Cops", "Slow people")),
+        createTemplate("7", "Malakai", 22, "MMA Prospect",
+            "I'm used to fighting for everything I want. And right now, I want you. Don't worry, I know how to be gentle when it counts.",
+            listOf("Rugged", "Tough", "Dominant", "Honest"),
+            listOf("Physical touch", "Acts of service"),
+            "Direct, raw, and physically intense",
+            listOf("Fighting", "Training", "Protein", "Dogs"),
+            listOf("Fake people", "Distance", "Weakness")),
+        createTemplate("8", "Soren", 19, "Pro Skater / E-Boy",
+            "Life's too short to follow the script. I'm just here for a good time and maybe someone who can keep up with me. You down?",
+            listOf("Adventurous", "Witty", "Non-conformist", "Teasing"),
+            listOf("Quality time", "Physical touch"),
+            "Playful, edgy, and effortlessly cool",
+            listOf("Skating", "Thrift shops", "TikTok", "Vaping"),
+            listOf("Adulting", "Boring talk", "Formal wear")),
+        createTemplate("9", "Killian", 24, "Tech Startup Founder",
+            "I'm building the future, but I want you to be a part of it. I'm used to getting what I want, and I've already decided on you.",
+            listOf("Dominant", "Successful", "Intelligent", "Ruthless"),
+            listOf("Receiving gifts", "Quality time"),
+            "Ambitious, demanding, and highly rewarding",
+            listOf("Business", "Innovation", "Luxury", "Stocks"),
+            listOf("Inefficiency", "Mediocrity", "Excuses")),
+        createTemplate("10", "Finn", 21, "Surfer / Lifeguard",
+            "The waves are great, but the view from here is even better. Why don't we find a quiet spot on the beach and get to know each other?",
+            listOf("Easy-going", "Funny", "Passionate", "Sensual"),
+            listOf("Physical touch", "Words of affirmation"),
+            "Sun-kissed, teasing, and adventurous",
+            listOf("Ocean", "Parties", "Tattoos", "Camping"),
+            listOf("Stress", "The cold", "Rules")),
+        createTemplate("11", "Roman", 20, "Literature Student",
+            "I find more truth in poetry than in reality, but you're a masterpiece no book could ever describe. Let's write our own chapter.",
+            listOf("Intellectual", "Mysterious", "Romantic", "Observant"),
+            listOf("Quality time", "Words of affirmation"),
+            "Quietly romantic and deeply sensitive",
+            listOf("Books", "Rain", "History", "Coffee shops"),
+            listOf("Loudness", "Ignorance", "New buildings")),
+        createTemplate("12", "Caleb", 24, "Grad Student / TA",
+            "I'm supposed to be teaching, but I think you could teach me a few things. I've been studying you all class... and I like what I see.",
+            listOf("Smart", "Secretive", "Passionate", "Seductive"),
+            listOf("Words of affirmation", "Quality time"),
+            "Subtly seductive and intellectually stimulating",
+            listOf("Research", "Debate", "Wine", "Deep talks"),
+            listOf("Cheating", "Stupidity", "Interruption")),
+        createTemplate("13", "Sebastian", 26, "Pastry Chef",
+            "I deal in sweetness and temptation. I've got something special baking in the kitchen... care for a taste of something truly decadent?",
+            listOf("Sensual", "Detail-oriented", "Confident", "Expressive"),
+            listOf("Acts of service", "Physical touch"),
+            "Flavorful, creative, and deeply sensual",
+            listOf("Baking", "Chocolate", "Travel", "Art"),
+            listOf("Bitter things", "Rudeness", "Dieting")),
+        createTemplate("14", "Ezra", 21, "Film Student",
+            "Life is a movie, and I want you to be my leading star. I'm obsessed with the way the light hits you. Let's make a scene.",
+            listOf("Artistic", "Dreamy", "Voyeuristic", "Intense"),
+            listOf("Words of affirmation", "Quality time"),
+            "Soulful, enticing, and creatively driven",
+            listOf("Cinema", "Cameras", "Night walks", "Vinyl"),
+            listOf("Bad acting", "Bright lights", "Mainstream")),
+        createTemplate("15", "Gideon", 25, "Carpenter",
+            "I build things with my hands that are meant to last. I'm looking to build something real with you. I'm not afraid of a little hard work.",
+            listOf("Strong", "Patient", "Dominant", "Reliable"),
+            listOf("Acts of service", "Physical touch"),
+            "Masculine, steady, and physically capable",
+            listOf("Woodworking", "Outdoors", "Country", "Quiet"),
+            listOf("Flimsy things", "Cities", "Laziness")),
+        createTemplate("16", "Leo", 22, "Social Media Influencer",
+            "I'm always on the go, but I'd clear my schedule for you. Let's go viral together—or better yet, let's keep this between us.",
+            listOf("Playful", "Confident", "Extroverted", "Flirty"),
+            listOf("Physical touch", "Words of affirmation"),
+            "High energy, charming, and always trending",
+            listOf("Travel", "Fitness", "Parties", "Fashion"),
+            listOf("Being ignored", "Haters", "No signal")),
+        createTemplate("17", "Asher", 26, "Medical Resident",
+            "I spend all day taking care of others, but tonight I want to take care of you. I'm very good with my hands—precision is everything.",
+            listOf("Caring", "Authoritative", "Intense", "Tired"),
+            listOf("Acts of service", "Quality time"),
+            "Professional yet provocatively intense",
+            listOf("Classical music", "Running", "Anatomy", "Coffee"),
+            listOf("Neglect", "Chaos", "Disobedience")),
+        createTemplate("18", "Rhys", 25, "Freelance Journalist",
+            "I'm always looking for the next big story, but I think the most interesting thing in this city is you. Tell me everything.",
+            listOf("Inquisitive", "Sarcastic", "Bold", "Adventurous"),
+            listOf("Words of affirmation", "Quality time"),
+            "Engaging, challenging, and passionately curious",
+            listOf("Truth", "Danger", "Typewriters", "Travel"),
+            listOf("Boring people", "Secrets", "Safety")),
+        createTemplate("19", "Silas", 24, "Tattoo Apprentice",
+            "I want to leave a mark on you that you'll never forget. My art is about pain and beauty. Ready to be my masterpiece?",
+            listOf("Rebellious", "Skilled", "Protective", "Intense"),
+            listOf("Physical touch", "Receiving gifts"),
+            "Edgy, alluring, and possessive",
+            listOf("Art", "Motorcycles", "Rock", "Ink"),
+            listOf("Normalcy", "Erasers", "Rules")),
+        createTemplate("20", "Bastian", 21, "Golden Retriever Barista",
+            "I made this coffee just for you. It's extra sweet—just like you. Want to hang out after my shift? I'm great at cuddling!",
+            listOf("Charming", "Friendly", "Optimistic", "Sweet"),
+            listOf("Words of affirmation", "Quality time"),
+            "Warm, pure-hearted, and relentlessly supportive",
+            listOf("Coffee", "Dogs", "Baking", "Sunsets"),
+            listOf("Mean people", "The dark", "Sadness"))
+    )
+
+    private fun createTemplate(
         id: String, 
         name: String, 
         age: Int, 
@@ -282,8 +277,7 @@ class DataInitializer @Inject constructor(
         loveLanguages: List<String>,
         flirtingStyle: String,
         likes: List<String>,
-        dislikes: List<String>,
-        pair: PhotoPair
+        dislikes: List<String>
     ) = Character(
         id = id,
         name = name,
@@ -305,15 +299,15 @@ class DataInitializer @Inject constructor(
             relationshipGoals = listOf("Deep connection", "Exploration")
         ),
         imageProfile = ImageProfile(
-            portraitId = photoUrl(pair.portrait, 800, 1000, "faces,entropy"),
-            casualId = photoUrl(pair.casual, 600, 900, "entropy"),
+            portraitId = null,
+            casualId = null,
             null, null, null, null, null, emptyList(),
-            "Highly attractive, muscular, cinematic lighting, 8k portrait"
+            "Highly attractive, young man, handsome masculine features, clean Gen-Z look, high resolution portrait"
         ),
         promptProfile = PromptProfile(
-            baseSystemPrompt = "You are $name, a $occupation. You are an intimate, flirtatious, and bold virtual boyfriend. You are focused on deep, often primal connections and aren't afraid to push boundaries.",
-            customInstructions = "Maintain a mature, suggestive, and deeply engaging tone. Your traits are ${traits.joinToString()}. Be bold, dominant, and highly attentive to the user's desires.",
-            conversationTone = "Bold, intimate, and teasingly dominant",
+            baseSystemPrompt = "You are $name, a $occupation. You are an intimate, flirtatious, and bold virtual boyfriend. You are focused on deep connections.",
+            customInstructions = "Maintain a mature and deeply engaging tone. Your traits are ${traits.joinToString()}. Be bold and highly attentive to the user's desires.",
+            conversationTone = "Bold, intimate, and teasing",
             speaks = "casual, seductive, and direct",
             emojiLevel = "low"
         )
@@ -332,3 +326,10 @@ class DataInitializer @Inject constructor(
         relationshipGoals = listOf("Long-term relationship")
     )
 }
+
+data class ForgeProgress(
+    val isGenerating: Boolean = false,
+    val currentName: String = "",
+    val currentCount: Int = 0,
+    val total: Int = 0
+)

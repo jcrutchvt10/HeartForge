@@ -34,13 +34,9 @@ public final class MatchViewModel_Factory implements Factory<MatchViewModel> {
 
   private final Provider<DataInitializer> dataInitializerProvider;
 
-<<<<<<< Updated upstream
   private final Provider<UserProfileRepository> userProfileRepositoryProvider;
 
-  public MatchViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
-=======
   private MatchViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
->>>>>>> Stashed changes
       Provider<MatchmakingEngine> matchmakingEngineProvider,
       Provider<DataInitializer> dataInitializerProvider,
       Provider<UserProfileRepository> userProfileRepositoryProvider) {

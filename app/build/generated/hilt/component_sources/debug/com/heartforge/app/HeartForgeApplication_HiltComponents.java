@@ -1,20 +1,21 @@
 package com.heartforge.app;
 
+import androidx.hilt.work.HiltWrapper_WorkerFactoryModule;
+import com.heartforge.app.core.worker.ProactiveNudgeWorker_HiltModule;
 import com.heartforge.app.di.AppModule;
 import com.heartforge.app.di.DatabaseModule;
 import com.heartforge.app.di.NetworkModule;
 import com.heartforge.app.di.RepositoryModule;
 import com.heartforge.app.feature.chat.ChatListViewModel_HiltModules;
 import com.heartforge.app.feature.chat.ChatViewModel_HiltModules;
+import com.heartforge.app.feature.chronicle.ChronicleViewModel_HiltModules;
 import com.heartforge.app.feature.creator.CreatorViewModel_HiltModules;
 import com.heartforge.app.feature.gallery.GalleryViewModel_HiltModules;
 import com.heartforge.app.feature.home.HomeViewModel_HiltModules;
 import com.heartforge.app.feature.matches.CharacterProfileViewModel_HiltModules;
 import com.heartforge.app.feature.matches.MatchViewModel_HiltModules;
 import com.heartforge.app.feature.memories.MemoryViewModel_HiltModules;
-import com.heartforge.app.feature.profile.ProfileSettingsViewModel_HiltModules;
 import com.heartforge.app.feature.settings.SettingsViewModel_HiltModules;
-import com.heartforge.app.feature.stories.StoryPlayViewModel_HiltModules;
 import com.heartforge.app.feature.stories.StoryViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
@@ -146,7 +147,9 @@ public final class HeartForgeApplication_HiltComponents {
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class,
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
+          HiltWrapper_WorkerFactoryModule.class,
           NetworkModule.class,
+          ProactiveNudgeWorker_HiltModule.class,
           RepositoryModule.class
       }
   )
@@ -174,6 +177,7 @@ public final class HeartForgeApplication_HiltComponents {
           CharacterProfileViewModel_HiltModules.KeyModule.class,
           ChatListViewModel_HiltModules.KeyModule.class,
           ChatViewModel_HiltModules.KeyModule.class,
+          ChronicleViewModel_HiltModules.KeyModule.class,
           CreatorViewModel_HiltModules.KeyModule.class,
           GalleryViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
@@ -183,9 +187,7 @@ public final class HeartForgeApplication_HiltComponents {
           HomeViewModel_HiltModules.KeyModule.class,
           MatchViewModel_HiltModules.KeyModule.class,
           MemoryViewModel_HiltModules.KeyModule.class,
-          ProfileSettingsViewModel_HiltModules.KeyModule.class,
           SettingsViewModel_HiltModules.KeyModule.class,
-          StoryPlayViewModel_HiltModules.KeyModule.class,
           StoryViewModel_HiltModules.KeyModule.class
       }
   )
@@ -225,15 +227,14 @@ public final class HeartForgeApplication_HiltComponents {
           CharacterProfileViewModel_HiltModules.BindsModule.class,
           ChatListViewModel_HiltModules.BindsModule.class,
           ChatViewModel_HiltModules.BindsModule.class,
+          ChronicleViewModel_HiltModules.BindsModule.class,
           CreatorViewModel_HiltModules.BindsModule.class,
           GalleryViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
           MatchViewModel_HiltModules.BindsModule.class,
           MemoryViewModel_HiltModules.BindsModule.class,
-          ProfileSettingsViewModel_HiltModules.BindsModule.class,
           SettingsViewModel_HiltModules.BindsModule.class,
-          StoryPlayViewModel_HiltModules.BindsModule.class,
           StoryViewModel_HiltModules.BindsModule.class
       }
   )

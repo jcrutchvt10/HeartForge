@@ -36,14 +36,9 @@ public final class MemoryViewModel_Factory implements Factory<MemoryViewModel> {
 
   private final Provider<SavedStateHandle> savedStateHandleProvider;
 
-<<<<<<< Updated upstream
-  public MemoryViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
+  private MemoryViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
       Provider<MemoryDao> memoryDaoProvider, Provider<MemoryRepository> memoryRepositoryProvider,
       Provider<SavedStateHandle> savedStateHandleProvider) {
-=======
-  private MemoryViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
-      Provider<MemoryDao> memoryDaoProvider, Provider<SavedStateHandle> savedStateHandleProvider) {
->>>>>>> Stashed changes
     this.characterRepositoryProvider = characterRepositoryProvider;
     this.memoryDaoProvider = memoryDaoProvider;
     this.memoryRepositoryProvider = memoryRepositoryProvider;

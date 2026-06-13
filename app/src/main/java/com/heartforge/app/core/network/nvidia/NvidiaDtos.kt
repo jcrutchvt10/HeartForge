@@ -71,3 +71,22 @@ data class ChatChunkChoice(
 data class ChatDelta(
     val content: String?
 )
+
+data class FluxImageRequest(
+    val prompt: String,
+    val mode: String? = null,
+    val cfg_scale: Int,
+    val steps: Int,
+    val image: String? = null,
+    @SerializedName("preprocess_image") val preprocessImage: Boolean? = null,
+    val seed: Int? = null
+)
+
+data class FluxImageResponse(
+    val artifacts: List<FluxArtifact>
+)
+
+data class FluxArtifact(
+    val base64: String,
+    val finishReason: String
+)

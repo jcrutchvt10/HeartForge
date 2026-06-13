@@ -16,4 +16,7 @@ interface RelationshipDao {
 
     @Query("DELETE FROM relationships WHERE characterId = :characterId")
     suspend fun deleteRelationship(characterId: String)
+
+    @Query("DELETE FROM relationships")
+    suspend fun deleteAll()
 }

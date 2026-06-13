@@ -51,17 +51,13 @@ public final class ChatRepositoryImpl_Factory implements Factory<ChatRepositoryI
 
   private final Provider<ImageEngine> imageEngineProvider;
 
-<<<<<<< Updated upstream
   private final Provider<UserProfileRepository> userProfileRepositoryProvider;
 
   private final Provider<NotificationHelper> notificationHelperProvider;
 
   private final Provider<AppForegroundState> foregroundStateProvider;
 
-  public ChatRepositoryImpl_Factory(Provider<MessageDao> messageDaoProvider,
-=======
   private ChatRepositoryImpl_Factory(Provider<MessageDao> messageDaoProvider,
->>>>>>> Stashed changes
       Provider<AIProvider> aiProvider, Provider<PromptEngine> promptEngineProvider,
       Provider<EvolutionaryEngine> evolutionaryEngineProvider,
       Provider<CharacterRepository> characterRepositoryProvider,

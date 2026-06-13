@@ -39,6 +39,21 @@ class ImageStorage @Inject constructor(
     }
 
     /**
+     * Reads a file and returns its content as a Base64 string.
+     */
+    fun getBase64FromFile(path: String): String? {
+        return try {
+            val file = File(path)
+            if (!file.exists()) return null
+            val bytes = file.readBytes()
+            Base64.encodeToString(bytes, Base64.NO_WRAP)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
      * Deletes an image file by its path.
      */
     fun deleteImage(path: String): Boolean {

@@ -92,6 +92,14 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun sendImage(base64: String) {
+        _uiState.update { it.copy(isAssistantTyping = true) }
+        viewModelScope.launch {
+            chatRepository.sendImage(characterId, base64)
+            _uiState.update { it.copy(isAssistantTyping = false) }
+        }
+    }
+
     fun retryLastMessage() {
         val messages = _uiState.value.messages
         // Find the last user message that isn't followed by a successful assistant response

@@ -33,12 +33,8 @@ public final class NVIDIAProvider_Factory implements Factory<NVIDIAProvider> {
 
   private final Provider<SettingsRepository> settingsRepositoryProvider;
 
-<<<<<<< Updated upstream
-  public NVIDIAProvider_Factory(Provider<NVIDIAApiService> apiServiceProvider,
-      Provider<NVIDIAImageApiService> imageApiServiceProvider,
-=======
   private NVIDIAProvider_Factory(Provider<NVIDIAApiService> apiServiceProvider,
->>>>>>> Stashed changes
+      Provider<NVIDIAImageApiService> imageApiServiceProvider,
       Provider<SettingsRepository> settingsRepositoryProvider) {
     this.apiServiceProvider = apiServiceProvider;
     this.imageApiServiceProvider = imageApiServiceProvider;

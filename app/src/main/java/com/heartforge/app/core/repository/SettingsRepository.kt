@@ -11,6 +11,7 @@ interface SettingsRepository {
     val isStreamingEnabled: Flow<Boolean>
     val isDarkModeEnabled: Flow<Boolean>
     val favoriteCharacterIds: Flow<Set<String>>
+    val dataVersion: Flow<Int>
 
     suspend fun updateEndpoint(url: String)
     suspend fun updateChatModel(model: String)
@@ -20,6 +21,7 @@ interface SettingsRepository {
     suspend fun updateDarkMode(enabled: Boolean)
     suspend fun addFavorite(id: String)
     suspend fun removeFavorite(id: String)
+    suspend fun updateDataVersion(version: Int)
 
     suspend fun saveApiKey(key: String)
     suspend fun getApiKey(): String?

@@ -30,7 +30,7 @@ fun HeartForgeBottomNavigation(navController: NavHostController) {
         BottomNavItem(Destination.ChatList, "Chats", Icons.Default.Chat),
         BottomNavItem(Destination.Gallery, "Gallery", Icons.Default.Image),
         BottomNavItem(Destination.Creator, "Create", Icons.Default.Add),
-        BottomNavItem(Destination.ProfileSettings, "Settings", Icons.Default.Settings)
+        BottomNavItem(Destination.Settings, "Settings", Icons.Default.Settings)
     )
 
     GlassSurface(
@@ -50,22 +50,33 @@ fun HeartForgeBottomNavigation(navController: NavHostController) {
             val currentDestination = navBackStackEntry?.destination
 
             items.forEach { item ->
+                val isSelected = currentDestination?.hierarchy?.any { 
+                    it.route?.substringBefore("?") == item.destination.route.substringBefore("?")
+                } == true
+
                 NavigationBarItem(
                     icon = { Icon(item.icon, contentDescription = null, modifier = Modifier.size(24.dp)) },
                     label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
-                    selected = currentDestination?.hierarchy?.any { it.route == item.destination.route } == true,
+                    selected = isSelected,
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         indicatorColor = androidx.compose.ui.graphics.Color.Transparent
                     ),
                     onClick = {
-                        navController.navigate(item.destination.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        val route = item.destination.route
+                        navController.navigate(route) {
+                            if (route == Destination.Home.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    inclusive = true
+                                }
+                            } else {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     }
                 )

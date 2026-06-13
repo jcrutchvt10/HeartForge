@@ -1,14 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.heartforge.app-mergeDebugResources-63:/values-v21/values-v21.xml",
+            "outputFile": "com.heartforge.app-mergeDebugResources-67:/values-v21/values-v21.xml",
             "map": [
                 {
-<<<<<<< Updated upstream
-                    "source": "C:\\Users\\jason\\.gradle\\caches\\8.13\\transforms\\e2e65ff86ddaf9a886cf23849e9f3b52\\transformed\\core-1.13.1\\res\\values-v21\\values-v21.xml",
-=======
-                    "source": "C:\\Users\\jason\\.gradle\\caches\\9.5.0\\transforms\\9db7c1c335cb4b80826aeee77682d808\\transformed\\core-1.13.1\\res\\values-v21\\values-v21.xml",
->>>>>>> Stashed changes
+                    "source": "C:\\Users\\jason\\.gradle\\caches\\9.5.0\\transforms\\f65fb23b4256c4ca4e72e92137578217\\transformed\\core-1.13.1\\res\\values-v21\\values-v21.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,13",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",

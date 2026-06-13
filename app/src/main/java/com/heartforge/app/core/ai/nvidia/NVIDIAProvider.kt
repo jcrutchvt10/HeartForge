@@ -110,40 +110,103 @@ class NVIDIAProvider @Inject constructor(
         }
     }
 
+    private data class ModelConfig(
+        val endpoint: String,
+        val defaultCfg: Int = 5,
+        val defaultSteps: Int = 25,
+        val supportsMode: Boolean = true
+    )
+
+    private val generativeChain = listOf(
+        ModelConfig("v1/genai/black-forest-labs/flux.1-dev"),
+        ModelConfig("google/diffusiongemma-26b-a4b-it", defaultCfg = 7, defaultSteps = 30),
+        ModelConfig("v1/genai/black-forest-labs/flux.2-klein-4b", defaultCfg = 1, defaultSteps = 4, supportsMode = false),
+        ModelConfig("v1/genai/black-forest-labs/flux.1-schnell", defaultCfg = 0, defaultSteps = 4),
+        ModelConfig("stabilityai/stable-diffusion-3-5-large", defaultCfg = 5, defaultSteps = 40)
+    )
+
+    private val editingChain = listOf(
+        ModelConfig("v1/genai/black-forest-labs/flux.1-dev"), 
+        ModelConfig("v1/genai/black-forest-labs/flux.1-kontext-dev"),
+        ModelConfig("google/diffusiongemma-26b-a4b-it"),
+        ModelConfig("qwen/qwen-image-edit")
+    )
+
     override suspend fun generateImage(
         prompt: String,
-        negativePrompt: String?
+        negativePrompt: String?,
+        seed: Int?,
+        diversityIndex: Int?
     ): ImageResult {
         val apiKey = settingsRepository.getApiKey() ?: return ImageResult.Error("API Key not configured")
         
-        // Use FLUX.1-dev with base mode (txt2img)
-        val request = FluxImageRequest(
-            prompt = prompt,
-            mode = "base",
-            cfg_scale = 5,
-            steps = 25  // FLUX.1-dev default steps
-        )
-
-        return try {
-            val response = imageApiService.generateFluxDev("Bearer $apiKey", request)
-            if (response.isSuccessful) {
-                val artifact = response.body()?.artifacts?.firstOrNull()
-                val b64 = artifact?.base64
-                val fr = artifact?.finishReason
-                if (b64 != null && fr != "CONTENT_FILTERED") {
-                    ImageResult.Success(b64)
-                } else if (fr == "CONTENT_FILTERED") {
-                    ImageResult.Error("Content filtered by NSFW safety checker")
-                } else {
-                    ImageResult.Error("No image generated")
-                }
-            } else {
-                val err = response.errorBody()?.string()
-                ImageResult.Error("FLUX.1-dev: ${response.code()} - ${err?.take(200)}")
-            }
-        } catch (e: Exception) {
-            ImageResult.Error("FLUX.1-dev failed: ${e.message}")
+        val chain = if (diversityIndex != null) {
+            val idx = diversityIndex % generativeChain.size
+            generativeChain.drop(idx) + generativeChain.take(idx)
+        } else {
+            generativeChain.shuffled()
         }
+        
+        for (config in chain) {
+            Log.d(TAG, "Trying generative model: ${config.endpoint}")
+            
+            try {
+                val response = if (config.endpoint.startsWith("v1/genai")) {
+                    val request = FluxImageRequest(
+                        prompt = prompt,
+                        mode = if (config.supportsMode) "base" else null,
+                        cfg_scale = config.defaultCfg,
+                        steps = config.defaultSteps,
+                        seed = seed
+                    )
+                    imageApiService.generateImage(config.endpoint, "Bearer $apiKey", request)
+                } else {
+                    // Use generic OpenAI-compatible endpoint on ai.api.nvidia.com
+                    val request = ImageGenerationRequest(
+                        model = config.endpoint,
+                        prompt = prompt,
+                        negative_prompt = negativePrompt,
+                        steps = config.defaultSteps,
+                        cfg_scale = config.defaultCfg.toFloat(),
+                        seed = seed,
+                        safetyChecker = false, // Uncensored mode if supported by NIM
+                        responseFormat = "b64_json"
+                    )
+                    val genericUrl = "https://integrate.api.nvidia.com/v1/images/generations"
+                    val resp = imageApiService.generateGenericImage(genericUrl, "Bearer $apiKey", request)
+                    if (resp.isSuccessful) {
+                        val b64 = resp.body()?.data?.firstOrNull()?.b64_json
+                        if (b64 != null) {
+                            // Convert to Flux-like response
+                            retrofit2.Response.success(FluxImageResponse(listOf(FluxArtifact(b64, "SUCCESS"))))
+                        } else {
+                            retrofit2.Response.error(404, okhttp3.ResponseBody.create(null, "No image"))
+                        }
+                    } else {
+                        retrofit2.Response.error(resp.code(), resp.errorBody() ?: okhttp3.ResponseBody.create(null, "Error"))
+                    }
+                }
+
+                if (response.isSuccessful) {
+                    val artifact = response.body()?.artifacts?.firstOrNull()
+                    val b64 = artifact?.base64
+                    val fr = artifact?.finishReason
+                    
+                    if (b64 != null && fr != "CONTENT_FILTERED") {
+                        Log.d(TAG, "${config.endpoint} SUCCESS. Reason: $fr")
+                        return ImageResult.Success(b64)
+                    } else {
+                        Log.w(TAG, "${config.endpoint} generation finished but was filtered or empty. Reason: $fr")
+                    }
+                } else {
+                    val err = response.errorBody()?.string()
+                    Log.w(TAG, "${config.endpoint} failed: ${response.code()} - $err")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "${config.endpoint} threw exception: ${e.message}")
+            }
+        }
+        return ImageResult.Error("All generative models in chain failed or filtered content")
     }
 
     override suspend fun generateImg2Img(
@@ -154,41 +217,102 @@ class NVIDIAProvider @Inject constructor(
     ): ImageResult {
         val apiKey = settingsRepository.getApiKey() ?: return ImageResult.Error("API Key not configured")
 
-        Log.d(TAG, "Attempting img2img with FLUX.1-dev depth mode, reference image length: ${referenceImage.length}")
+        val formattedImage = if (!referenceImage.startsWith("data:")) {
+            "data:image/jpeg;base64,$referenceImage"
+        } else {
+            referenceImage
+        }
 
-        // Use FLUX.1-dev with depth mode directly - reference image is passed as base64 in the image field
-        val request = FluxImageRequest(
-            prompt = prompt,
-            mode = "depth",
-            cfg_scale = 5,
-            steps = 30,
-            image = referenceImage  // Pass base64 directly, no asset upload needed
+        for (config in editingChain) {
+            Log.d(TAG, "Trying editing model: ${config.endpoint}")
+            
+            try {
+                val response = if (config.endpoint.startsWith("v1/genai")) {
+                    val request = FluxImageRequest(
+                        prompt = prompt,
+                        mode = if (!config.supportsMode) null 
+                               else if (config.endpoint.contains("flux.1-dev")) "depth" 
+                               else null,
+                        cfg_scale = config.defaultCfg,
+                        steps = config.defaultSteps,
+                        image = formattedImage
+                    )
+                    imageApiService.generateImage(config.endpoint, "Bearer $apiKey", request)
+                } else {
+                    // Use generic OpenAI-compatible endpoint in apiService
+                    val request = ImageGenerationRequest(
+                        model = config.endpoint,
+                        prompt = prompt,
+                        negative_prompt = negativePrompt,
+                        steps = config.defaultSteps,
+                        cfg_scale = config.defaultCfg.toFloat(),
+                        image = formattedImage,
+                        responseFormat = "b64_json"
+                    )
+                    val genericUrl = "https://integrate.api.nvidia.com/v1/images/generations"
+                    val resp = imageApiService.generateGenericImage(genericUrl, "Bearer $apiKey", request)
+                    if (resp.isSuccessful) {
+                        val b64 = resp.body()?.data?.firstOrNull()?.b64_json
+                        if (b64 != null) {
+                            retrofit2.Response.success(FluxImageResponse(listOf(FluxArtifact(b64, "SUCCESS"))))
+                        } else {
+                            retrofit2.Response.error(404, okhttp3.ResponseBody.create(null, "No image"))
+                        }
+                    } else {
+                        retrofit2.Response.error(resp.code(), resp.errorBody() ?: okhttp3.ResponseBody.create(null, "Error"))
+                    }
+                }
+
+                if (response.isSuccessful) {
+                    val artifact = response.body()?.artifacts?.firstOrNull()
+                    val b64 = artifact?.base64
+                    val fr = artifact?.finishReason
+                    
+                    if (b64 != null && fr != "CONTENT_FILTERED") {
+                        Log.d(TAG, "${config.endpoint} img2img SUCCESS. Reason: $fr")
+                        return ImageResult.Success(b64)
+                    } else {
+                        Log.w(TAG, "${config.endpoint} img2img finished but was filtered or empty. Reason: $fr")
+                    }
+                } else {
+                    val err = response.errorBody()?.string()
+                    Log.w(TAG, "${config.endpoint} img2img failed: ${response.code()} - $err")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "${config.endpoint} img2img threw exception: ${e.message}")
+            }
+        }
+        return ImageResult.Error("All editing models in chain failed")
+    }
+
+    override suspend fun analyzeImage(imageBase64: String, prompt: String): AIResult {
+        val apiKey = settingsRepository.getApiKey() ?: return AIResult.Error("API Key not configured")
+        
+        // Ensure image is formatted
+        val formattedImage = if (!imageBase64.startsWith("data:")) {
+            "data:image/jpeg;base64,$imageBase64"
+        } else {
+            imageBase64
+        }
+
+        val request = ChatCompletionRequest(
+            model = "qwen/qwen-image",
+            messages = listOf(
+                ChatMessage("user", content = "User uploaded image. $prompt $formattedImage")
+            ),
+            maxTokens = 512
         )
 
-        try {
-            val response = imageApiService.generateFluxDev("Bearer $apiKey", request)
+        return try {
+            val response = apiService.createChatCompletion("Bearer $apiKey", request)
             if (response.isSuccessful) {
-                val artifact = response.body()?.artifacts?.firstOrNull()
-                val b64 = artifact?.base64
-                val fr = artifact?.finishReason
-                if (b64 != null && fr != "CONTENT_FILTERED") {
-                    Log.d(TAG, "img2img SUCCESS with FLUX.1-dev depth, generated ${b64.length} chars")
-                    return ImageResult.Success(b64)
-                } else if (fr == "CONTENT_FILTERED") {
-                    Log.w(TAG, "img2img: Content filtered by NSFW safety checker")
-                    return ImageResult.Error("Content filtered by NSFW safety checker")
-                } else {
-                    Log.w(TAG, "img2img: No image generated, finishReason=$fr")
-                    return ImageResult.Error("No image generated")
-                }
+                val content = response.body()?.choices?.firstOrNull()?.message?.content ?: ""
+                AIResult.Success(content)
             } else {
-                val err = response.errorBody()?.string()
-                Log.e(TAG, "img2img: FLUX.1-dev depth failed: ${response.code()} - ${err?.take(200)}")
-                return ImageResult.Error("FLUX.1-dev depth: ${response.code()} - ${err?.take(200)}")
+                AIResult.Error("Vision Error: ${response.code()}")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "img2img: FLUX.1-dev depth failed: ${e.message}")
-            return ImageResult.Error("FLUX.1-dev depth failed: ${e.message}")
+            AIResult.Error("Vision Exception: ${e.message}")
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.heartforge.app.feature.gallery
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.heartforge.app.core.ai.CasualPhotoGenerator
@@ -36,23 +37,33 @@ data class GalleryImage(
 class GalleryViewModel @Inject constructor(
     private val characterRepository: CharacterRepository,
     private val nsfwGenerator: NSFWGenerator,
-    private val casualPhotoGenerator: CasualPhotoGenerator
+    private val casualPhotoGenerator: CasualPhotoGenerator,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val initialCharacterId: String? = savedStateHandle.get<String>("characterId")
+    private val initialAutoGenerate: Boolean = savedStateHandle.get<Boolean>("autoGenerate") ?: false
 
     private val _uiState = MutableStateFlow(GalleryState())
     val uiState: StateFlow<GalleryState> = _uiState.asStateFlow()
 
     init {
         loadCharacters()
+        if (initialCharacterId != null) {
+            selectCharacter(initialCharacterId)
+            if (initialAutoGenerate) {
+                generateNSFW()
+            }
+        }
     }
 
     private fun loadCharacters() {
         viewModelScope.launch {
             val characters = characterRepository.getCharacters()
-            _uiState.value = GalleryState(
+            _uiState.update { it.copy(
                 characters = characters,
                 isLoading = false
-            )
+            ) }
         }
     }
 
@@ -62,7 +73,7 @@ class GalleryViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            val character = _uiState.value.characters.find { it.id == characterId }
+            val character = characterRepository.getCharacter(characterId)
             if (character != null) {
                 val profile = character.imageProfile
                 val images = listOfNotNull(
@@ -91,27 +102,30 @@ class GalleryViewModel @Inject constructor(
     }
 
     fun toggleNSFW() {
-        _uiState.update { it.copy(showNSFW = !it.showNSFW) }
+        val newState = !_uiState.value.showNSFW
+        _uiState.update { it.copy(showNSFW = newState) }
+
+        if (newState && _uiState.value.nsfwImages.isEmpty() && !_uiState.value.isGeneratingNSFW) {
+            Log.d(TAG, "Triggering automatic NSFW generation as gallery is empty")
+            generateNSFW()
+        }
     }
 
     fun generateNSFW() {
         val characterId = _uiState.value.selectedCharacterId ?: return
+        if (_uiState.value.isGeneratingNSFW) return
+
+        val count = if (_uiState.value.nsfwImages.isEmpty()) 8 else 4
+        Log.d(TAG, "Starting NSFW generation flow for $characterId (count: $count)")
         _uiState.update { it.copy(isGeneratingNSFW = true, nsfwGenerationError = null) }
 
         viewModelScope.launch {
-            val result = nsfwGenerator.generateForCharacter(characterId)
-            result.fold(
-                onSuccess = { paths ->
-                    val nsfwImages = paths.map { GalleryImage(it, "NSFW") }
-                    _uiState.update {
-                        it.copy(
-                            isGeneratingNSFW = false,
-                            nsfwImages = it.nsfwImages + nsfwImages,
-                            showNSFW = true
-                        )
-                    }
-                },
-                onFailure = { error ->
+            nsfwGenerator.generateForCharacter(characterId, count)
+                .onStart {
+                    Log.d(TAG, "NSFW generation flow started")
+                }
+                .catch { error ->
+                    Log.e(TAG, "NSFW generation flow failed", error)
                     _uiState.update {
                         it.copy(
                             isGeneratingNSFW = false,
@@ -119,7 +133,21 @@ class GalleryViewModel @Inject constructor(
                         )
                     }
                 }
-            )
+                .onCompletion {
+                    Log.d(TAG, "NSFW generation flow completed")
+                    _uiState.update { it.copy(isGeneratingNSFW = false) }
+                    loadCharacters()
+                }
+                .collect { path ->
+                    Log.d(TAG, "Received new NSFW image: $path")
+                    val newImage = GalleryImage(path, "NSFW")
+                    _uiState.update {
+                        it.copy(
+                            nsfwImages = it.nsfwImages + newImage,
+                            showNSFW = true
+                        )
+                    }
+                }
         }
     }
 
@@ -141,6 +169,7 @@ class GalleryViewModel @Inject constructor(
                             characterImages = updatedImages
                         )
                     }
+                    loadCharacters()
                 },
                 onFailure = { error ->
                     _uiState.update {

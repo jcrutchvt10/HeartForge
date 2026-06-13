@@ -6,4 +6,6 @@ interface MemoryRepository {
     suspend fun remember(memory: Memory)
     suspend fun forget(memoryId: String)
     suspend fun editMemory(memoryId: String, content: String, importance: Int, category: com.heartforge.app.core.model.MemoryCategory, sentiment: com.heartforge.app.core.model.Sentiment)
+    suspend fun synthesizeLoveLetter(characterId: String): String
+    fun getLoveLetters(characterId: String): kotlinx.coroutines.flow.Flow<List<com.heartforge.app.core.model.LoveLetter>>
 }

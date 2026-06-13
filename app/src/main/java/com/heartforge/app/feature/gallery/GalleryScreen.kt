@@ -35,6 +35,7 @@ fun GalleryScreen(
 
     if (state.selectedCharacterId != null) {
         CharacterGalleryView(
+            characterId = state.selectedCharacterId!!,
             characterName = state.characters.find { it.id == state.selectedCharacterId }?.name ?: "",
             images = state.characterImages,
             nsfwImages = state.nsfwImages,
@@ -141,6 +142,7 @@ private fun CharacterCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CharacterGalleryView(
+    characterId: String,
     characterName: String,
     images: List<GalleryImage>,
     nsfwImages: List<GalleryImage>,
@@ -154,7 +156,14 @@ private fun CharacterGalleryView(
     onGenerateNSFW: () -> Unit,
     onRegenerateCasual: () -> Unit
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(if (showNSFW) 1 else 0) }
+
+    // Sync selectedTab with showNSFW state from ViewModel
+    LaunchedEffect(showNSFW) {
+        if (showNSFW) {
+            selectedTab = 1
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -209,12 +218,16 @@ private fun CharacterGalleryView(
                         }
                     }
                 }
+                Tab(selected = selectedTab == 2, onClick = { selectedTab = 2 }) {
+                    Text("Chronicles", modifier = Modifier.padding(16.dp))
+                }
             }
 
             // Content
             when (selectedTab) {
                 0 -> PhotoGrid(images = images, emptyText = "No photos available.")
                 1 -> NSFWContent(nsfwImages, isGenerating, genError, onGenerateNSFW)
+                2 -> com.heartforge.app.feature.chronicle.ChroniclesTab(characterId)
             }
         }
     }
@@ -277,61 +290,65 @@ private fun NSFWContent(
     onGenerate: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        when {
-            isGenerating -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+        if (images.isEmpty() && isGenerating) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator(color = RoseRed)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Generating NSFW images...", color = RoseRed)
+                Text("8 scenes per character", style = MaterialTheme.typography.bodySmall)
+            }
+        } else if (images.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = RoseRed.copy(alpha = 0.4f),
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "No NSFW images yet.",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = RoseRed
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Tap the ❤️ icon in the top bar to generate 8 explicit scenes\nusing AI with the character's portrait as reference.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+                if (genError != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(genError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onGenerate,
+                    colors = ButtonDefaults.buttonColors(containerColor = RoseRed)
                 ) {
-                    CircularProgressIndicator(color = RoseRed)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Generating NSFW images...", color = RoseRed)
-                    Text("8 scenes per character", style = MaterialTheme.typography.bodySmall)
+                    Icon(Icons.Default.Favorite, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Generate NSFW Gallery")
                 }
             }
-            images.isEmpty() -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.Favorite,
-                        contentDescription = null,
-                        tint = RoseRed.copy(alpha = 0.4f),
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "No NSFW images yet.",
-                        style = MaterialTheme.typography.titleMedium,
+        } else {
+            Column {
+                if (isGenerating) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth().height(4.dp),
                         color = RoseRed
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Tap the ❤️ icon in the top bar to generate 8 explicit scenes\nusing AI with the character's portrait as reference.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    if (genError != null) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(genError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(
-                        onClick = onGenerate,
-                        colors = ButtonDefaults.buttonColors(containerColor = RoseRed)
-                    ) {
-                        Icon(Icons.Default.Favorite, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Generate NSFW Gallery")
-                    }
                 }
-            }
-            else -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier

@@ -60,6 +60,10 @@ class SettingsRepositoryImpl @Inject constructor(
         preferences[KEY_FAVORITES] ?: emptySet()
     }
 
+    override val dataVersion: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[KEY_DATA_VERSION] ?: 0
+    }
+
     override suspend fun updateEndpoint(url: String) {
         context.dataStore.edit { it[KEY_ENDPOINT] = url }
     }
@@ -100,6 +104,10 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateDataVersion(version: Int) {
+        context.dataStore.edit { it[KEY_DATA_VERSION] = version }
+    }
+
     override suspend fun saveApiKey(key: String) {
         secureSettings.saveApiKey(key)
         _apiKeyFlow.value = key
@@ -118,5 +126,6 @@ class SettingsRepositoryImpl @Inject constructor(
         private val KEY_STREAMING = booleanPreferencesKey("streaming")
         private val KEY_DARK_MODE = booleanPreferencesKey("dark_mode")
         private val KEY_FAVORITES = stringSetPreferencesKey("favorites")
+        private val KEY_DATA_VERSION = intPreferencesKey("data_version")
     }
 }

@@ -22,4 +22,16 @@ interface MemoryDao {
 
     @Query("DELETE FROM memories WHERE id = :id")
     suspend fun deleteMemory(id: String)
+
+    @Query("DELETE FROM memories")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM love_letters WHERE characterId = :characterId ORDER BY timestamp DESC")
+    fun getLoveLetters(characterId: String): Flow<List<LoveLetterEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLoveLetter(letter: LoveLetterEntity)
+
+    @Query("DELETE FROM love_letters")
+    suspend fun deleteAllLetters()
 }

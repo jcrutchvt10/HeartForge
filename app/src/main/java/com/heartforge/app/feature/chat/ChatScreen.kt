@@ -1,5 +1,8 @@
 package com.heartforge.app.feature.chat
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -10,7 +13,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,6 +50,18 @@ fun ChatScreen(
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyListState()
 
+    val moodColor = remember(state.relationship?.mood) {
+        when (state.relationship?.mood?.lowercase()) {
+            "lustful", "hot", "affectionate" -> Color(0xFF4A0E0E) // Deep Crimson
+            "playful", "happy" -> Color(0xFF0E3A4A) // Dark Teal
+            "jealous", "angry" -> Color(0xFF2E0E4A) // Deep Purple
+            "comfortable", "loving" -> Color(0xFF4A3B0E) // Dark Gold/Amber
+            else -> Color(0xFF121212) // Default Noir
+        }
+    }
+
+    val animatedBgColor by animateColorAsState(targetValue = moodColor, animationSpec = tween(1000))
+
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             scrollState.animateScrollToItem(state.messages.size - 1)
@@ -51,7 +69,7 @@ fun ChatScreen(
     }
 
     Scaffold(
-        containerColor = Color.Transparent,
+        containerColor = animatedBgColor,
         topBar = {
             GlassSurface(
                 modifier = Modifier.fillMaxWidth(),
@@ -74,6 +92,23 @@ fun ChatScreen(
                         navigationIcon = {
                             IconButton(onClick = { navController.popBackStack() }) {
                                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
+                        },
+                        actions = {
+                            state.character?.let { character ->
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(
+                                            com.heartforge.app.navigation.Destination.Gallery.createRoute(character.id, true)
+                                        )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Favorite,
+                                        contentDescription = "Generate NSFW",
+                                        tint = RoseRed
+                                    )
+                                }
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
@@ -102,7 +137,8 @@ fun ChatScreen(
                 ChatInput(
                     value = state.currentInput,
                     onValueChange = { viewModel.onInputChange(it) },
-                    onSend = { viewModel.sendMessage() }
+                    onSend = { viewModel.sendMessage() },
+                    onImagePicked = { viewModel.sendImage(it) }
                 )
             }
         }
@@ -209,8 +245,22 @@ fun MoodIndicator(mood: String) {
 fun ChatInput(
     value: String,
     onValueChange: (String) -> Unit,
-    onSend: () -> Unit
+    onSend: () -> Unit,
+    onImagePicked: (String) -> Unit // Base64 string
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val pickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let {
+                val base64 = uriToBase64(context, it)
+                if (base64 != null) {
+                    onImagePicked(base64)
+                }
+            }
+        }
+    )
+
     Row(
         modifier = Modifier
             .padding(16.dp)
@@ -218,6 +268,15 @@ fun ChatInput(
             .imePadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        IconButton(
+            onClick = { 
+                pickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Upload", tint = RoseRed)
+        }
+        Spacer(modifier = Modifier.width(8.dp))
         TextField(
             value = value,
             onValueChange = onValueChange,
@@ -231,7 +290,16 @@ fun ChatInput(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 cursorColor = RoseRed
-            )
+            ),
+            trailingIcon = {
+                IconButton(onClick = { onValueChange("Send me a sexy photo 😉") }) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Request Pic",
+                        tint = RoseRed.copy(alpha = 0.6f)
+                    )
+                }
+            }
         )
         Spacer(modifier = Modifier.width(12.dp))
         FloatingActionButton(
@@ -311,5 +379,18 @@ fun TypingIndicator(name: String) {
                 }
             }
         }
+    }
+}
+
+fun uriToBase64(context: android.content.Context, uri: android.net.Uri): String? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val bytes = inputStream?.readBytes()
+        inputStream?.close()
+        if (bytes != null) {
+            android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        } else null
+    } catch (e: Exception) {
+        null
     }
 }

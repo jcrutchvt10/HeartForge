@@ -11,7 +11,9 @@ interface AIProvider {
 
     suspend fun generateImage(
         prompt: String,
-        negativePrompt: String? = null
+        negativePrompt: String? = null,
+        seed: Int? = null,
+        diversityIndex: Int? = null
     ): ImageResult
 
     suspend fun generateImg2Img(
@@ -20,6 +22,11 @@ interface AIProvider {
         strength: Float = 0.6f,
         negativePrompt: String? = null
     ): ImageResult
+
+    suspend fun analyzeImage(
+        imageBase64: String,
+        prompt: String = "Describe this image in detail, focusing on the person's appearance and mood."
+    ): AIResult
 }
 
 data class AIMessage(

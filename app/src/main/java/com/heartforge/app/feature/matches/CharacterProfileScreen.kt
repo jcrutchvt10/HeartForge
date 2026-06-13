@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -52,6 +54,34 @@ fun CharacterProfileScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { 
+                            navController.navigate(
+                                com.heartforge.app.navigation.Destination.Gallery.createRoute(character.id, true)
+                            )
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite, 
+                            contentDescription = "Generate NSFW",
+                            tint = RoseRed
+                        )
+                    }
+                    IconButton(
+                        onClick = { 
+                            navController.navigate(
+                                com.heartforge.app.navigation.Destination.Chronicles.createRoute(character.id)
+                            )
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Book, 
+                            contentDescription = "Chronicles",
+                            tint = RoseRed
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)

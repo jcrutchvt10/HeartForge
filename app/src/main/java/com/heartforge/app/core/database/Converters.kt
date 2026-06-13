@@ -55,6 +55,15 @@ class Converters {
     }
 
     @TypeConverter
+    fun fromChapterList(value: List<StoryChapter>): String = gson.toJson(value)
+
+    @TypeConverter
+    fun toChapterList(value: String): List<StoryChapter> {
+        val listType = object : TypeToken<List<StoryChapter>>() {}.type
+        return gson.fromJson(value, listType)
+    }
+
+    @TypeConverter
     fun fromStringList(value: List<String>): String = gson.toJson(value)
 
     @TypeConverter

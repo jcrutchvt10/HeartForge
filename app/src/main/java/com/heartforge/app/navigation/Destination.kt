@@ -12,7 +12,10 @@ sealed class Destination(val route: String) {
 
     data object ChatList : Destination("chats")
 
-    data object Gallery : Destination("gallery")
+    data object Gallery : Destination("gallery?characterId={characterId}&autoGenerate={autoGenerate}") {
+        fun createRoute(characterId: String? = null, autoGenerate: Boolean = false) = 
+            "gallery" + (if (characterId != null) "?characterId=$characterId&autoGenerate=$autoGenerate" else "")
+    }
 
     data object Creator : Destination("creator")
 
@@ -36,4 +39,7 @@ sealed class Destination(val route: String) {
         fun createRoute(id: String) = "profile/$id"
     }
 
+    data object Chronicles : Destination("chronicles/{characterId}") {
+        fun createRoute(id: String) = "chronicles/$id"
+    }
 }

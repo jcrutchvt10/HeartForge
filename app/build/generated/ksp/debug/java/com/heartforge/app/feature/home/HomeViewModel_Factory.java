@@ -2,6 +2,7 @@ package com.heartforge.app.feature.home;
 
 import com.heartforge.app.core.database.MemoryDao;
 import com.heartforge.app.core.repository.CharacterRepository;
+import com.heartforge.app.core.repository.SettingsRepository;
 import com.heartforge.app.core.util.DataInitializer;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -33,26 +34,31 @@ public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
 
   private final Provider<MemoryDao> memoryDaoProvider;
 
+  private final Provider<SettingsRepository> settingsRepositoryProvider;
+
   private HomeViewModel_Factory(Provider<CharacterRepository> characterRepositoryProvider,
-      Provider<DataInitializer> dataInitializerProvider, Provider<MemoryDao> memoryDaoProvider) {
+      Provider<DataInitializer> dataInitializerProvider, Provider<MemoryDao> memoryDaoProvider,
+      Provider<SettingsRepository> settingsRepositoryProvider) {
     this.characterRepositoryProvider = characterRepositoryProvider;
     this.dataInitializerProvider = dataInitializerProvider;
     this.memoryDaoProvider = memoryDaoProvider;
+    this.settingsRepositoryProvider = settingsRepositoryProvider;
   }
 
   @Override
   public HomeViewModel get() {
-    return newInstance(characterRepositoryProvider.get(), dataInitializerProvider.get(), memoryDaoProvider.get());
+    return newInstance(characterRepositoryProvider.get(), dataInitializerProvider.get(), memoryDaoProvider.get(), settingsRepositoryProvider.get());
   }
 
   public static HomeViewModel_Factory create(
       Provider<CharacterRepository> characterRepositoryProvider,
-      Provider<DataInitializer> dataInitializerProvider, Provider<MemoryDao> memoryDaoProvider) {
-    return new HomeViewModel_Factory(characterRepositoryProvider, dataInitializerProvider, memoryDaoProvider);
+      Provider<DataInitializer> dataInitializerProvider, Provider<MemoryDao> memoryDaoProvider,
+      Provider<SettingsRepository> settingsRepositoryProvider) {
+    return new HomeViewModel_Factory(characterRepositoryProvider, dataInitializerProvider, memoryDaoProvider, settingsRepositoryProvider);
   }
 
   public static HomeViewModel newInstance(CharacterRepository characterRepository,
-      DataInitializer dataInitializer, MemoryDao memoryDao) {
-    return new HomeViewModel(characterRepository, dataInitializer, memoryDao);
+      DataInitializer dataInitializer, MemoryDao memoryDao, SettingsRepository settingsRepository) {
+    return new HomeViewModel(characterRepository, dataInitializer, memoryDao, settingsRepository);
   }
 }

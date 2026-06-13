@@ -1,5 +1,6 @@
 package com.heartforge.app.feature.stories;
 
+import com.heartforge.app.core.repository.CharacterRepository;
 import com.heartforge.app.core.repository.RelationshipRepository;
 import com.heartforge.app.core.repository.StoryRepository;
 import dagger.internal.DaggerGenerated;
@@ -28,26 +29,31 @@ import javax.annotation.processing.Generated;
 public final class StoryViewModel_Factory implements Factory<StoryViewModel> {
   private final Provider<StoryRepository> storyRepositoryProvider;
 
+  private final Provider<CharacterRepository> characterRepositoryProvider;
+
   private final Provider<RelationshipRepository> relationshipRepositoryProvider;
 
   private StoryViewModel_Factory(Provider<StoryRepository> storyRepositoryProvider,
+      Provider<CharacterRepository> characterRepositoryProvider,
       Provider<RelationshipRepository> relationshipRepositoryProvider) {
     this.storyRepositoryProvider = storyRepositoryProvider;
+    this.characterRepositoryProvider = characterRepositoryProvider;
     this.relationshipRepositoryProvider = relationshipRepositoryProvider;
   }
 
   @Override
   public StoryViewModel get() {
-    return newInstance(storyRepositoryProvider.get(), relationshipRepositoryProvider.get());
+    return newInstance(storyRepositoryProvider.get(), characterRepositoryProvider.get(), relationshipRepositoryProvider.get());
   }
 
   public static StoryViewModel_Factory create(Provider<StoryRepository> storyRepositoryProvider,
+      Provider<CharacterRepository> characterRepositoryProvider,
       Provider<RelationshipRepository> relationshipRepositoryProvider) {
-    return new StoryViewModel_Factory(storyRepositoryProvider, relationshipRepositoryProvider);
+    return new StoryViewModel_Factory(storyRepositoryProvider, characterRepositoryProvider, relationshipRepositoryProvider);
   }
 
   public static StoryViewModel newInstance(StoryRepository storyRepository,
-      RelationshipRepository relationshipRepository) {
-    return new StoryViewModel(storyRepository, relationshipRepository);
+      CharacterRepository characterRepository, RelationshipRepository relationshipRepository) {
+    return new StoryViewModel(storyRepository, characterRepository, relationshipRepository);
   }
 }

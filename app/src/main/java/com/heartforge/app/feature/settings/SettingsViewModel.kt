@@ -1,8 +1,12 @@
 package com.heartforge.app.feature.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.heartforge.app.core.repository.SettingsRepository
+import com.heartforge.app.core.worker.ProactiveNudgeWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -18,11 +22,13 @@ data class SettingsState(
     val isStreamingEnabled: Boolean = true,
     val isDarkModeEnabled: Boolean = false,
     val availableModels: List<String> = emptyList(),
-    val isRefreshingModels: Boolean = false
+    val isRefreshingModels: Boolean = false,
+    val isTestingNudge: Boolean = false
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
     private val settingsRepository: SettingsRepository,
     private val apiService: com.heartforge.app.core.network.nvidia.NVIDIAApiService
 ) : ViewModel() {
@@ -93,6 +99,32 @@ class SettingsViewModel @Inject constructor(
 
     fun updateStreaming(enabled: Boolean) {
         viewModelScope.launch { settingsRepository.updateStreaming(enabled) }
+    }
+
+    fun testNudge() {
+        _uiState.update { it.copy(isTestingNudge = true) }
+        val workRequest = OneTimeWorkRequestBuilder<ProactiveNudgeWorker>()
+            .addTag("test_nudge")
+            .build()
+        
+        WorkManager.getInstance(context).enqueue(workRequest)
+        
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(2000)
+            _uiState.update { it.copy(isTestingNudge = false) }
+        }
+    }
+
+    fun logAvailableModels() {
+        viewModelScope.launch {
+            val apiKey = settingsRepository.getApiKey()
+            if (apiKey != null) {
+                val response = apiService.getModels("Bearer $apiKey")
+                if (response.isSuccessful) {
+                    Log.d("SettingsViewModel", "Available Models: ${response.body()?.data?.map { it.id }}")
+                }
+            }
+        }
     }
 
     fun refreshModels() {

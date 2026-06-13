@@ -52,16 +52,24 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-        if (state.isLoading) {
-            HomeShimmer(padding)
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            if (state.forgeProgress.isGenerating) {
+                item {
+                    ForgeProgressCard(state.forgeProgress)
+                }
+            }
+            
+            if (state.isLoading && !state.forgeProgress.isGenerating) {
+                item {
+                    HomeShimmer(PaddingValues(0.dp))
+                }
+            } else if (state.activeCharacter != null || state.recommendedMatches.isNotEmpty()) {
                 // Continue Chat
                 state.activeCharacter?.let { character ->
                     item {
@@ -134,6 +142,48 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ForgeProgressCard(progress: com.heartforge.app.core.util.ForgeProgress) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = RoseRed.copy(alpha = 0.1f)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, RoseRed.copy(alpha = 0.3f))
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Forging Your Partners",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = RoseRed
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            LinearProgressIndicator(
+                progress = { progress.currentCount.toFloat() / progress.total.coerceAtLeast(1) },
+                modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
+                color = RoseRed,
+                trackColor = Color.White.copy(alpha = 0.1f)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Currently Forging: ${progress.currentName}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "${progress.currentCount} of ${progress.total} characters ready",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
